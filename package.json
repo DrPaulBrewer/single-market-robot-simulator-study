@@ -1,0 +1,22 @@
+{
+  "name": "single-market-robot-simulator-study",
+  "version": "1.0.0",
+  "description": "a study consists of multiple single-market-robot-simulator configurations and resulting simulations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrPaulBrewer/single-market-robot-simulator-study.git"
+  },
+  "author": "drpaulbrewer@eaftc.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study/issues"
+  },
+  "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study#readme",
+  "dependencies": {
+    "clone": "^2.1.1"
+  }
+}
