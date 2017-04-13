@@ -60,6 +60,7 @@ module.exports.commonFrom = commonFrom;
  */
 
 function paths(pathToStudyJSON, numberOfConfigurations,filename){
+    "use strict";
     const list = [];
     const filenameRegex = /[^\/]*$/;
     const f = filename || '';
