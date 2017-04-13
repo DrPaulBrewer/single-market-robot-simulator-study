@@ -63,7 +63,7 @@ function paths(pathToStudyJSON, numberOfConfigurations,filename){
     const list = [];
     const filenameRegex = /[^\/]*$/;
     const f = filename || '';
-    for(let j=0,l=numberOfConfigurations; j<l; ++j)
+    for(var j=0,l=numberOfConfigurations; j<l; ++j)
 	list.push(pathToStudyJSON.replace(filenameRegex, letter(j)+"/"+f));
     return list;
 }
