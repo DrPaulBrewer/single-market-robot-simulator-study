@@ -49,6 +49,26 @@ function commonFrom(obj){
 
 module.exports.commonFrom = commonFrom;
 
+/**
+ *
+ * creates a list of directory or file paths where individual simulation data may be found, given a study's config.json file
+ *
+ * @param {string} pathToStudyJSON path to the study "config.json" file
+ * @param {number} numberOfConfigurations the number of configurations, e.g. study.configurations.length
+ * @param {filename} filename to append to resulting path in each directory
+ * @return {string[]} 
+ */
+
+function paths(pathToStudyJSON, numberOfConfigurations,filename){
+    const list = [];
+    const filenameRegex = /[^\/]*$/;
+    const f = filename || '';
+    for(let j=0,l=numberOfConfigurations; j<l; ++j)
+	list.push(pathToStudyJSON.replace(filenameRegex, letter(j)+"/"+f));
+    return list;
+}
+
+module.exports.paths = paths;
 
 /**
  * Create new simulations from ~ Jan-2017 original study cfg format 
