@@ -1,6 +1,6 @@
 {
   "name": "single-market-robot-simulator-study",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "a study consists of multiple single-market-robot-simulator configurations and resulting simulations",
   "main": "index.js",
   "scripts": {
