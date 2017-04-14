@@ -93,4 +93,17 @@ function makeClassicSimulations(cfg, Simulation){
 
 module.exports.makeClassicSimulations = makeClassicSimulations ;
 
+function metaSummary(cfg){
+    "use strict";
+    const meta = {};
+    if (cfg && cfg.common){
+	if (cfg.title) meta.title = cfg.title;
+	['periods','numberOfBuyers','numberOfSellers'].forEach((p)=>{
+	    if (cfg.common[p])
+		meta[p] = ''+cfg.common[p];
+	});
+    }
+    return meta;
+}
 
+module.exports.metaSummary = metaSummary;
