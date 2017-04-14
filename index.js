@@ -102,6 +102,8 @@ function metaSummary(cfg){
 	    if (cfg.common[p])
 		meta[p] = ''+cfg.common[p];
 	});
+	if (Array.isArray(cfg.configurations))
+	    meta.numberOfConfigurations = cfg.configurations.length;
     }
     return meta;
 }
