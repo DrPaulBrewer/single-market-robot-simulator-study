@@ -87,6 +87,7 @@ function makeClassicSimulations(cfg, Simulation){
     return (cfg
 	    .configurations
 	    .map(commonFrom(cfg))
+	    .map((s,j)=>{ if (s.caseid===undefined) s.caseid=j; return s; })
 	    .map((s)=>(new Simulation(s)))
 	   );
 }
@@ -109,3 +110,4 @@ function metaSummary(cfg){
 }
 
 module.exports.metaSummary = metaSummary;
+
