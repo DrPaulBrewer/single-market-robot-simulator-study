@@ -5,8 +5,11 @@
 
 const clone = require('clone');
 
-function pad(x){
+function pad(z){
     "use strict";
+    const x = Math.floor(+z);
+    if ((x===undefined) || (Number.isNaN(x)))
+	throw new Error("pad: expected numeric input");
     return (x<10)? ("0"+x) : (''+x);
 }
 
@@ -23,14 +26,6 @@ function myDateStamp(thedate){
 }
 
 module.exports.myDateStamp = myDateStamp;
-
-function letter(n){
-    "use strict";
-    var A = "A".charCodeAt(0);
-    return String.fromCharCode(A+n);
-}
-
-module.exports.letter = letter;
 
 /**
  * creates a function that clones input object, and then overrides some properties with those in a clone of obj.com
@@ -65,7 +60,7 @@ function paths(pathToStudyJSON, numberOfConfigurations,filename){
     const filenameRegex = /[^\/]*$/;
     const f = filename || '';
     for(var j=0,l=numberOfConfigurations; j<l; ++j)
-	list.push(pathToStudyJSON.replace(filenameRegex, letter(j)+"/"+f));
+	list.push(pathToStudyJSON.replace(filenameRegex, pad(j)+"/"+f));
     return list;
 }
 
