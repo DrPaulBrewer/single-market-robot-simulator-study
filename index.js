@@ -13,6 +13,8 @@ function pad(z){
     return (x<10)? ("0"+x) : (''+x);
 }
 
+module.exports.pad = pad;
+
 function myDateStamp(thedate){
     "use strict";
     const now = thedate || new Date();
