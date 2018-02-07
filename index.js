@@ -1,4 +1,4 @@
-/* Copyright 2017 Paul Brewer, Economic and Financial Technology Consulting LLC */
+/* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
 /* jshint browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true,unused:true */
@@ -96,6 +96,7 @@ function metaSummary(cfg){
     const meta = {};
     if (cfg && cfg.common){
 	if (cfg.title) meta.title = cfg.title;
+	if (cfg.name) meta.name = cfg.name;
 	['periods','numberOfBuyers','numberOfSellers'].forEach((p)=>{
 	    if (cfg.common[p])
 		meta[p] = ''+cfg.common[p];
