@@ -109,3 +109,65 @@ function metaSummary(cfg){
 
 module.exports.metaSummary = metaSummary;
 
+/**
+ * clones study _config and modifies it for expansion.
+ * If the number of buyers or sellers is 1, that number is unchanged.  Otherwise, multiplies the number of buyers and sellers by xfactor.
+ * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name. 
+ */
+
+function expand(_config, xfactor, how){
+    function adjust(what){
+	if (what.buyerValues)
+	    what.buyerValues = how(what.buyerValues, xfactor);
+	if (what.sellerCosts)
+	    what.sellerCosts = how(what.sellerCosts, xfactor);
+	if (what.numberOfBuyers>1)
+	    what.numberOfBuyers *= xfactor;
+	if (what.numberOfSellers>1)
+	    what.numberOfSellers *= xfactor;
+    }
+    const config = clone(_config);  // isolate changes
+    if (config && (xfactor>1) && (typeof(how)==='function')){
+	config.name += ' x'+xfactor;
+	if (config.common)
+	    adjust(config.common);
+	if (Array.isArray(config.configurations))
+	    config.configurations.forEach(adjust);
+    }
+    return config;
+}
+
+module.exports.expand = expand;
+
+/**
+ * collection of functions to use as "how" with expand, above 
+ */
+
+module.exports.expander = {
+    interpolate: (a,n)=>{
+	if (!a.length) return [];
+        const result = [];
+        for(let i=0,l=a.length;i<(l-1);++i){
+            for(let j=0;j<n;++j){
+                result.push((a[i]*(n-j)+a[i+1]*j)/n);
+            }
+        }
+        const last = a[a.length-1];
+        for(let j=0;j<n;++j)
+            result.push(last);
+        return result;
+    },
+
+    duplicate: (a,n)=>{
+	if (!a.length) return [];
+        const result = [];
+        for(let i=0,l=a.length;i<l;++i){
+            for(let j=0;j<n;++j){
+                result.push(a[i]);
+            }
+        }
+        return result;
+    }
+};
+
+

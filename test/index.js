@@ -85,6 +85,68 @@ describe('Study ', function(){
 	    Study.metaSummary(example1).should.deepEqual(manualMeta);
 	});
     });
+    describe(' .expander', function(){
+	describe(' .interpolate ', function(){
+	    const tests = [
+		[ [[200,150,100,50,0],2], [200,175,150,125,100,75,50,25,0,0] ],
+		[ [[2100,1800,1200,300,0], 3], [2100,2000,1900,1800,1600,1400,1200,900,600,300,200,100,0,0,0] ],
+		[ [[10,20],10], [10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,20,20,20,20] ],
+		[ [[100], 4], [100,100,100,100] ],
+		[ [[], 5], [] ],
+		[ [{}, 5], [] ],
+		[ [undefined, 5], "throws"]
+	    ];
+	    tests.forEach(([params, goal])=>{
+		it(' .interpolate('+JSON.stringify(params[0])+','+params[1]+') --> '+JSON.stringify(goal), function(){
+		    if (Array.isArray(goal))
+			Study.expander.interpolate.apply(null, params).should.deepEqual(goal);
+		    if ((typeof(goal)==='string') && (goal.startsWith("throws")))
+			( ()=>(Study.expander.interpolate.apply(null, params)) ).should.throw();			
+		});
+	    });
+	});
+	describe(' .duplicate ', function(){
+	    const tests = [
+		[ [[200,150,100,50,0],2], [200,200,150,150,100,100,50,50,0,0] ],
+		[ [[2100,1800,1200,300,0], 3], [2100,2100,2100,1800,1800,1800,1200,1200,1200,300,300,300,0,0,0] ],
+		[ [[10,20],10], [10,10,10,10,10,10,10,10,10,10,20,20,20,20,20,20,20,20,20,20] ],
+		[ [[100], 4], [100,100,100,100] ],
+		[ [[], 5], [] ],
+		[ [{}, 5], [] ],
+		[ [undefined, 5], "throws"]
+	    ];
+	    tests.forEach(([params, goal])=>{
+		it(' .duplicate('+JSON.stringify(params[0])+','+params[1]+') --> '+JSON.stringify(goal), function(){
+		    if (Array.isArray(goal))
+			Study.expander.duplicate.apply(null, params).should.deepEqual(goal);
+		    if ((typeof(goal)==='string') && (goal.startsWith("throws")))
+			( ()=>(Study.expander.duplicate.apply(null, params)) ).should.throw();			
+		});
+	    });
+	});
+    });
+    describe(' .expand ', function(){
+	const manualBuyerValues=new Array(80).fill(0).map((v,j)=>((j>75)? 5: (80-j)));
+	const manualSellerCosts=new Array(50).fill(0).map((v,j)=>(j>45)? 100: (10+2*j));
+	it(' .expand(example1,5,Study.expander.interpolate).common should match example1 common because costs and values are in .configurations', function(){
+	    Study.expand(example1,5,Study.expander.interpolate).common.should.deepEqual(example1.common);
+	});
+	it(' .expand(example1,5,Study.expander.interpolate).configurations[0].buyerValues matches manual calculation ', function(){
+	    Study.expand(example1,5,Study.expander.interpolate).configurations[0].buyerValues.should.deepEqual(manualBuyerValues);
+	});
+	it(' .expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts matches manual calculation ', function(){
+	    Study.expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts.should.deepEqual(manualSellerCosts);
+	});
+	it(' .expand(example1,5,Study.expander.interpolate) increases number of buyers and sellers to 50 ', function(){
+	    let {numberOfBuyers, numberOfSellers } = Study.expand(example1,5,Study.expander.interpolate).configurations[0];
+	    numberOfBuyers.should.equal(50);
+	    numberOfSellers.should.equal(50);
+	});
+	it(' .expand(example1,7,Study.expander.duplicate) appends x7 to .name ', function(){
+	    assert.ok(Study.expand(example1,7,Study.expander.duplicate).name.endsWith("x7"));
+	});
+    });
 });
+
 
 
