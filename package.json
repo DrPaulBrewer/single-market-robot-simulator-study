@@ -1,35 +1,36 @@
 {
-    "name": "single-market-robot-simulator-study",
-    "version": "3.1.0",
-    "description": "a study consists of multiple single-market-robot-simulator configurations and resulting simulations",
-    "keywords": [
-        "single-market-robot-simulator",
-        "automation",
-        "robot trading",
-        "economic simulation"
-    ],
-    "main": "index.js",
-    "scripts": {
-        "test": "node_modules/.bin/mocha --reporter spec --slow 100 --timeout 2000",
-        "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/DrPaulBrewer/single-market-robot-simulator-study.git"
-    },
-    "author": "drpaulbrewer@eaftc.com",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study/issues"
-    },
-    "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study#readme",
-    "dependencies": {
-        "clone": "^2.1.1"
-    },
-    "devDependencies": {
-        "coveralls": "^3.0.0",
-        "istanbul": "^0.4.5",
-        "mocha": "^5.0.0",
-        "should": "^13.2.1"
-    }
+  "name": "single-market-robot-simulator-study",
+  "version": "3.1.0",
+  "description": "a study consists of multiple single-market-robot-simulator configurations and resulting simulations",
+  "keywords": [
+    "single-market-robot-simulator",
+    "automation",
+    "robot trading",
+    "economic simulation"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha --reporter spec --slow 100 --timeout 2000",
+    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrPaulBrewer/single-market-robot-simulator-study.git"
+  },
+  "author": "drpaulbrewer@eaftc.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study/issues"
+  },
+  "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study#readme",
+  "dependencies": {
+    "clone": "^2.1.1",
+    "fast-deep-equal": "^1.0.0"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.0.0",
+    "should": "^13.2.1"
+  }
 }

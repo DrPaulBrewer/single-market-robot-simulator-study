@@ -4,6 +4,7 @@
 /* jshint browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true,unused:true */
 
 const clone = require('clone');
+const fastDeepEqual = require('fast-deep-equal');
 
 function pad(z){
     "use strict";
@@ -171,3 +172,104 @@ module.exports.expander = {
 };
 
 
+/**
+ * returns properties of config.configurations that are identical
+ * across all configurations.
+ *
+ * special case:  if config.configurations.length<=1 returns empty array [];
+ */
+
+// what if cprop is array? may not quite be what we want
+
+function unvaryingInConfigurations(config, cprop){
+    if (config.configurations.length <= 1)
+	return (cprop)? false: [];
+    const A = config.configurations[0];
+    const propsTested = (cprop && [cprop]) || Object.keys(A);
+    const unvaryingList = propsTested.filter(
+	(prop)=>(config
+		 .configurations
+		 .every(
+		     (caseConfig)=>(fastDeepEqual(A[prop],caseConfig[prop]))
+		 )
+		)
+    );
+    return (cprop)? (unvaryingList.length===1): unvaryingList;
+}
+
+module.exports.unvaryingInConfigurations = unvaryingInConfigurations;
+
+/**
+ * Moves configuration information from .configurations to .common
+ *
+ * if change is an Array, all properties in the Array are deleted in all configurations and if unset
+ * in common, are set from the first defined configuration
+ *
+ * if change is an Object, its props/values are set in .common and deleted in all configurations
+ * 
+ *
+ * if change is an object, its properties are included into common,
+ * and deleted from any of the .configurations
+ */
+
+function assignToCommon(_config, change){
+    const config = clone(_config);
+    if (Array.isArray(change)){
+	change.forEach((prop)=>{
+	    if (config.common[prop]===undefined){
+		let caseConf  = config.configurations.find((caseConfig)=>(caseConfig[prop]!==undefined));
+		if (caseConf) config.common[prop] = caseConf[prop];
+	    }
+	    config.configurations.forEach((caseConfig)=>{
+		delete caseConfig[prop];
+	    });
+	});
+	return config;
+    }
+    if (typeof(change)==='object'){
+	Object.assign(config, change);
+	Object.keys(change).forEach((prop)=>(config.configurations.forEach((caseConfig)=>{
+	    delete caseConfig[prop];
+	})));
+	return config;
+    }
+    return config;
+}
+
+module.exports.assignToCommon = assignToCommon;
+
+/**
+ * If change is an Array, it is interpreted as a list of properties.
+ * each property is deleted from config.common and the same property/value set
+ * in each of the .configurations
+ *
+ * If change is an object, then its properties and values are assigned to
+ * each of the configurations and its properties deleted from .common
+ *
+ */
+
+function assignToConfigurations(_config, change){
+    const config = clone(_config);
+    if (Array.isArray(change)){
+	change.forEach((prop)=>{
+	    let commonval = config.common[prop];
+	    if (typeof(commonval)!=='undefined'){
+		config.configurations.forEach((caseConfig)=>{
+		    caseConfig[prop] = clone(commonval);
+		});
+	    }
+	    delete config.common[prop];
+	});
+	return config;
+    }
+    if (typeof(change)==='object'){
+	config.configurations.forEach((caseConfig)=>{
+	    Object.assign(caseConfig, clone(change));
+	});
+	Object.keys(change).forEach((prop)=>{ delete config.common[prop]; });
+    }
+    throw new Error("Study.assignToConfigurations: invalid change, got: "+change);
+}
+	
+    
+module.exports.assignToConfigurations = assignToConfigurations;

@@ -10,7 +10,8 @@ const should = require('should');
 const assert = require('assert');
 
 const example1 = require('./example-config.json');
-    
+const clone = require('clone');
+const fastDeepEqual = require('fast-deep-equal');
 
 describe('Study ', function(){
     describe(' .pad() ', function(){
@@ -145,6 +146,72 @@ describe('Study ', function(){
 	it(' .expand(example1,7,Study.expander.duplicate) appends x7 to .name ', function(){
 	    assert.ok(Study.expand(example1,7,Study.expander.duplicate).name.endsWith("x7"));
 	});
+    });
+    describe(' .unvaryingInConfigurations ', function(){
+	it(' .unvaryingInConfigurations(example1) --> [] ', function(){
+	    Study.unvaryingInConfigurations(example1).should.deepEqual([]);
+	});
+	describe(' example1A clones configurations[0] to configurations[1] ', function(){
+	    it(' .unvaryingInConfigurations(example1A) --> [all config props]', function(){
+		const allConfigProps = Object.keys(example1.configurations[0]);
+		const example1A = clone(example1);
+		example1A.configurations[1] = clone(example1A.configurations[0]);
+		Study.unvaryingInConfigurations(example1A).should.deepEqual(allConfigProps);
+	    });
+	});
+	describe(' example1B uses different buyerValues in configurations[1] ', function(){
+	    it(' .unvaryingInConfigurations(example1B) --> [all except buyerValues] ', function(){
+		const allConfigProps = Object.keys(example1.configurations[0]);
+		const expected = allConfigProps.filter((prop)=>(prop!=='buyerValues'));
+		const example1B = clone(example1);
+		example1B.configurations[1] = clone(example1B.configurations[0]);
+		example1B.configurations[1].buyerValues = example1B.configurations[0].buyerValues.map((v)=>(2*v));
+		example1B.configurations[0].should.not.deepEqual(example1B.configurations[1]);
+		Study.unvaryingInConfigurations(example1B,'buyerValues').should.equal(false);
+		Study.unvaryingInConfigurations(example1B,'sellerCosts').should.equal(true);
+		Study.unvaryingInConfigurations(example1B).should.deepEqual(expected);
+	    });
+	});
+    });
+    describe(' .assignToCommon ', function(){
+	describe('.assignToCommon(example1,["buyerValues"]) ', function(){
+	    const example1A = clone(example1);
+	    const bv = example1A.configurations[0].buyerValues;
+	    const example1AMod = Study.assignToCommon(example1A, ['buyerValues']);
+	    it('original study input object is unmodified', function(){
+		example1A.should.deepEqual(example1);
+	    });
+	    it('output has .buyerValues in common with value taken from configurations[0]', function(){
+		example1AMod.common.should.have.properties(['buyerValues']);
+		example1AMod.common.buyerValues.should.deepEqual(example1A.configurations[0].buyerValues);
+	    });
+	    it('output does not have .buyerValues in configurations[*]', function(){
+		assert.ok(example1AMod.configurations[0].buyerValues===undefined);
+	    });
+	    it('output is immune to obvious reference copying/meddling ', function(){
+		bv[0] = 1;
+		example1A.configurations[0].buyerValues[0].should.equal(1);
+		example1AMod.common.buyerValues[0].should.not.equal(1);
+	    });
+	});
+    });
+    describe(' .assignToConfigurations ', function(){
+	describe('.assignToConfigurations(example1x2,["periodDuration"] ', function(){
+	    const example1x2 = clone(example1);
+	    example1x2.configurations[1] = clone(example1x2.configurations[0]);
+	    const example1A = clone(example1x2);
+	    const example1AMod = Study.assignToConfigurations(example1A, ['periodDuration']);
+	    it('original study input object is unmodified', function(){
+		example1A.should.deepEqual(example1x2);
+	    });
+	    it('output has .periodDuration in .configurations[*]', function(){
+		example1AMod.configurations[0].periodDuration.should.equal(1000);
+		example1AMod.configurations[1].periodDuration.should.equal(1000);
+	    });
+	    it('output does not have .periodDuration in .common', function(){
+		example1AMod.common.should.not.have.property('periodDuration');
+	    });
+	});	
     });
 });
 
