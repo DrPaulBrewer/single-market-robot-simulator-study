@@ -194,6 +194,28 @@ describe('Study ', function(){
 		example1AMod.common.buyerValues[0].should.not.equal(1);
 	    });
 	});
+	describe('.assignToCommon(example1, { buyerRate: [0.5], sellerRate: [0.3] } ', function(){
+	    const example1A = clone(example1);
+	    const br = example1A.configurations[0].buyerRate;
+	    const change = { buyerRate: [0.5], sellerRate: [0.3] };
+	    const example1AMod = Study.assignToCommon(example1A, change);
+	    it('original study input object is unmodified', function(){
+		example1A.should.deepEqual(example1);
+	    });
+	    it('output has .common.buyerRate and .common.sellerRate with above values ', function(){
+		example1AMod.common.should.have.properties(['buyerRate','sellerRate']);
+		example1AMod.common.buyerRate.should.deepEqual(change.buyerRate);
+		example1AMod.common.sellerRate.should.deepEqual(change.sellerRate);
+	    });
+	    it('output does not have .buyerRate or .sellerRate in configurations', function(){
+		assert.ok(example1AMod.configurations[0].buyerRate===undefined);
+		assert.ok(example1AMod.configurations[0].sellerRate===undefined);
+	    });
+	    it('output has disconnected references to change ', function(){
+		assert(example1AMod.common.buyerRate!==change.buyerRate);
+		assert(example1AMod.common.sellerRate!==change.sellerRate);
+	    });
+	}); 
     });
     describe(' .assignToConfigurations ', function(){
 	describe('.assignToConfigurations(example1x2,["periodDuration"] ', function(){

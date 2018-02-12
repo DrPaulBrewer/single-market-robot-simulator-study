@@ -218,7 +218,7 @@ function assignToCommon(_config, change){
 	change.forEach((prop)=>{
 	    if (config.common[prop]===undefined){
 		let caseConf  = config.configurations.find((caseConfig)=>(caseConfig[prop]!==undefined));
-		if (caseConf) config.common[prop] = caseConf[prop];
+		if (caseConf) config.common[prop] = clone(caseConf[prop]);
 	    }
 	    config.configurations.forEach((caseConfig)=>{
 		delete caseConfig[prop];
@@ -227,7 +227,7 @@ function assignToCommon(_config, change){
 	return config;
     }
     if (typeof(change)==='object'){
-	Object.assign(config, change);
+	Object.assign(config.common, clone(change));
 	Object.keys(change).forEach((prop)=>(config.configurations.forEach((caseConfig)=>{
 	    delete caseConfig[prop];
 	})));
