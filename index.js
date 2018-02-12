@@ -110,41 +110,13 @@ function metaSummary(cfg){
 
 module.exports.metaSummary = metaSummary;
 
-/**
- * clones study _config and modifies it for expansion.
- * If the number of buyers or sellers is 1, that number is unchanged.  Otherwise, multiplies the number of buyers and sellers by xfactor.
- * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name. 
- */
 
-function expand(_config, xfactor, how){
-    function adjust(what){
-	if (what.buyerValues)
-	    what.buyerValues = how(what.buyerValues, xfactor);
-	if (what.sellerCosts)
-	    what.sellerCosts = how(what.sellerCosts, xfactor);
-	if (what.numberOfBuyers>1)
-	    what.numberOfBuyers *= xfactor;
-	if (what.numberOfSellers>1)
-	    what.numberOfSellers *= xfactor;
-    }
-    const config = clone(_config);  // isolate changes
-    if (config && (xfactor>1) && (typeof(how)==='function')){
-	config.name += ' x'+xfactor;
-	if (config.common)
-	    adjust(config.common);
-	if (Array.isArray(config.configurations))
-	    config.configurations.forEach(adjust);
-    }
-    return config;
-}
-
-module.exports.expand = expand;
 
 /**
- * collection of functions to use as "how" with expand, above 
+ * collection of functions to use as "how" with expand, below
  */
 
-module.exports.expander = {
+const expander = {
     interpolate: (a,n)=>{
 	if (!a.length) return [];
         const result = [];
@@ -170,6 +142,53 @@ module.exports.expander = {
         return result;
     }
 };
+
+module.exports.expander = expander;
+
+/**
+ * clones study _config and modifies it for expansion.
+ * If the number of buyers or sellers is 1, that number is unchanged.  Otherwise, multiplies the number of buyers and sellers by xfactor.
+ * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name. 
+ */
+
+function expand(_config, xfactor, how){
+    function adjust(what){
+	// what will be either config.common or config.configurations[n] for some n
+	function dup1to1AgentArrayProps(props){
+	    const prevNumberOfBuyers = _config.common.numberOfBuyers || what.numberOfBuyers;
+	    const prevNumberOfSellers = _config.common.numberOfSellers || what.numberOfSellers;
+	    props.forEach((prop)=>{
+		const checkLength = (prop.toLowerCase().includes("buyer"))? prevNumberOfBuyers: prevNumberOfSellers;
+		if (Array.isArray(what[prop]) && (checkLength>1) && (what[prop].length===checkLength)){
+		    what[prop] = expander.duplicate(what[prop], xfactor);
+		}
+	    });
+	}
+	if (what.buyerValues)
+	    what.buyerValues = how(what.buyerValues, xfactor);
+	if (what.sellerCosts)
+	    what.sellerCosts = how(what.sellerCosts, xfactor);
+	if (what.numberOfBuyers>1){
+	    dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='buyerValues') && (prop.startsWith("buyer")))));
+	    what.numberOfBuyers *= xfactor;
+	}
+	if (what.numberOfSellers>1){
+	    dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='sellerCosts') && (prop.startsWith("seller")))));
+	    what.numberOfSellers *= xfactor;
+	}
+    }
+    const config = clone(_config);  // isolate changes
+    if (config && (xfactor>1) && (typeof(how)==='function')){
+	config.name += ' x'+xfactor;
+	if (config.common)
+	    adjust(config.common);
+	if (Array.isArray(config.configurations))
+	    config.configurations.forEach(adjust);
+    }
+    return config;
+}
+
+module.exports.expand = expand;
 
 
 /**

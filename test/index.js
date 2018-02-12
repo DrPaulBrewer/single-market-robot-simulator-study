@@ -138,6 +138,12 @@ describe('Study ', function(){
 	it(' .expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts matches manual calculation ', function(){
 	    Study.expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts.should.deepEqual(manualSellerCosts);
 	});
+	it (' expanded buyerRate, sellerRate, buyerAgentType, sellerAgentType matches original because each of these has only one setting in original ', function(){
+	    const expanded = Study.expand(example1,5,Study.expander.interpolate).configurations[0];
+	    ['buyerRate','sellerRate','buyerAgentType','sellerAgentType'].forEach((prop)=>{
+		expanded[prop].should.deepEqual(example1.configurations[0][prop]);
+	    });
+	});
 	it(' .expand(example1,5,Study.expander.interpolate) increases number of buyers and sellers to 50 ', function(){
 	    let {numberOfBuyers, numberOfSellers } = Study.expand(example1,5,Study.expander.interpolate).configurations[0];
 	    numberOfBuyers.should.equal(50);
@@ -145,6 +151,13 @@ describe('Study ', function(){
 	});
 	it(' .expand(example1,7,Study.expander.duplicate) appends x7 to .name ', function(){
 	    assert.ok(Study.expand(example1,7,Study.expander.duplicate).name.endsWith("x7"));
+	});
+	it(' example1Z with 7 ZIAgent and 3 MidpointAgent agents when expanded x3 becomes 21 ZIAgent followed by 9 MidpointAgent ', function(){
+	    const example1Z = clone(example1);
+	    example1Z.configurations[0].buyerAgentType = [].concat(new Array(7).fill('ZIAgent'), new Array(3).fill('MidpointAgent'));
+	    const x3Example1Z = Study.expand(example1Z, 3, Study.expander.interpolate);
+	    x3Example1Z.configurations[0].buyerAgentType.should.deepEqual([].concat(new Array(21).fill('ZIAgent'), new Array(9).fill('MidpointAgent')));
+	    x3Example1Z.configurations[0].sellerAgentType.should.deepEqual(example1Z.configurations[0].sellerAgentType);
 	});
     });
     describe(' .unvaryingInConfigurations ', function(){
