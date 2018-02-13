@@ -1,0 +1,72 @@
+{
+    "name": "Example-3",
+    "description": "Example 3 features a series of markets with 10 Buyer and 10 Sellers and aggregate Demand and Supply given by D=16-floor(P/5), 0<P<=80  ;and S=floor(P/10) 0<P<=100.  The buyers and sellers in the first market all use the Zero Intelligence (ZI) Robot Strategy similar to that described by Gode and Sunder(1993), and in the last market all use Brewer's UnitAgent that bids or asks within 1 price unit of the previous price ",
+    "common": {
+        "periods": 100,
+        "periodDuration": 1000,
+        "L": 1,
+        "H": 150,
+        "buyerValues": [
+            80,
+            75,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5
+        ],
+	"sellerCosts": [
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+        ],
+        "numberOfBuyers": 10,
+        "numberOfSellers": 10,
+        "buyerRate": [
+            0.2
+        ],
+        "sellerRate": [
+            0.2
+        ],
+        "sellerAgentType": [
+            "ZIAgent"
+        ],
+        "keepPreviousOrders": false,
+        "ignoreBudgetConstraint": false,
+        "xMarket": {
+            "buySellBookLimit": 0,
+            "resetAfterEachTrade": false
+        },
+        "integer": true,
+        "silent": true,
+        "version": 2
+    },
+    "configurations": [
+        {
+	    "buyerAgentType": [
+		"ZIAgent"
+            ]
+        },
+        {
+	    "buyerAgentType": [
+		"UnitAgent"
+            ]
+        }
+    ]
+}

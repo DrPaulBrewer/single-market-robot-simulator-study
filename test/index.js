@@ -9,7 +9,7 @@ const Study = require("../index.js");
 const should = require('should');
 const assert = require('assert');
 
-const example1 = require('./example-config.json');
+const example1 = require('./example1.json');
 const clone = require('clone');
 const fastDeepEqual = require('fast-deep-equal');
 
@@ -247,6 +247,30 @@ describe('Study ', function(){
 		example1AMod.common.should.not.have.property('periodDuration');
 	    });
 	});	
+    });
+    describe(' .morpher ', function(){
+	const tests = [
+	    [['left', [10,20,30], [50,60,70], 0.00], [10,20,30]],
+	    [['left', [10,20,30], [50,60,70], 0.25], [50,20,30]],
+	    [['left', [10,20,30], [50,60,70], 0.50], [50,60,30]],
+	    [['left', [10,20,30], [50,60,70], 0.75], [50,60,30]],
+	    [['left', [10,20,30], [50,60,70], 1.00], [50,60,70]],
+	    [['right', [10,20,30], [50,60,70], 0.00], [10,20,30]],
+	    [['right', [10,20,30], [50,60,70], 0.25], [10,20,70]],
+	    [['right', [10,20,30], [50,60,70], 0.50], [10,60,70]],
+	    [['right', [10,20,30], [50,60,70], 0.75], [10,60,70]],
+	    [['right', [10,20,30], [50,60,70], 1.00], [50,60,70]],
+	    [['interpolate', [10,20,30], [50,60,70], 0.00], [10,20,30]],
+	    [['interpolate', [10,20,30], [50,60,70], 0.25], [20,30,40]],
+	    [['interpolate', [10,20,30], [50,60,70], 0.50], [30,40,50]],
+	    [['interpolate', [10,20,30], [50,60,70], 0.75], [40,50,60]],
+	    [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]]
+	];    
+	tests.forEach(([[f, first,last,ratio], expected])=>{
+	    it( ` Study.morpher.${f}([${first}],[${last}],${ratio}) --> [${expected}] `, function(){
+		Study.morpher[f](first,last,ratio).should.deepEqual(expected);
+	    });
+	});
     });
 });
 
