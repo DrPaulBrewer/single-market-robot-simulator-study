@@ -168,12 +168,12 @@ function expand(_config, xfactor, how){
 	    what.buyerValues = how(what.buyerValues, xfactor);
 	if (what.sellerCosts)
 	    what.sellerCosts = how(what.sellerCosts, xfactor);
+	dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='buyerValues') && (prop.startsWith("buyer")))));
+	dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='sellerCosts') && (prop.startsWith("seller")))));
 	if (what.numberOfBuyers>1){
-	    dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='buyerValues') && (prop.startsWith("buyer")))));
 	    what.numberOfBuyers *= xfactor;
 	}
 	if (what.numberOfSellers>1){
-	    dup1to1AgentArrayProps(Object.keys(what).filter((prop)=>((prop!=='sellerCosts') && (prop.startsWith("seller")))));
 	    what.numberOfSellers *= xfactor;
 	}
     }
