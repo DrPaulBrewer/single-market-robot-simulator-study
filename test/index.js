@@ -279,7 +279,11 @@ describe('Study ', function(){
     describe(' .isMorphable ', function(){
 	const tests = [
 		[ null, null, false],
-		[ {a:1.0}, {b:2.0}, false]
+		[ {a:1.0}, {b:2.0}, false],
+		[ {a:1,b:2}, {b:2}, true],
+		[ {a:1,b:3,c:1}, {b:1}, true],
+		[ {a:1,b:"yellow",c:1}, {b:1}, false],
+		[ {a:1,b:"yellow",c:1}, {b:"orange"}, false]
 	];
 	tests.forEach(([A,B,expected])=>{
 		it(` A = ${A} B=${B} --> ${expected} `, function(){
