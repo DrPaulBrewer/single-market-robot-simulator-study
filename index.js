@@ -321,7 +321,7 @@ const morpher = {
 module.exports.morpher = morpher;
 
 function commonKeys(objectA, objectB){
-    if ((typeof(objectA)!=='object') || (typeof(objectB)!=='object'))
+    if ((typeof(objectA)!=='object') || (typeof(objectB)!=='object') || (objectA===null) || (objectB===null))
 	return [];
     return intersect(Object.keys(objectA), Object.keys(objectB));
 }
