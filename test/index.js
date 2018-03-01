@@ -291,7 +291,7 @@ describe('Study ', function(){
 		[ {a:['x','y','z']}, {a: ['q','q','q']}, true],
 		[ {a:['x','y','z']}, {a: [null,'x',3]}, false],
 		[ {a:[null,null,null]}, {a: [null,null,null]}, false],
-		[ {a:[1,2,3]}, {a:[3,4,5,6]}, false}
+		[ {a:[1,2,3]}, {a:[3,4,5,6]}, false]
 	];
 	tests.forEach(([A,B,expected])=>{
 		it(` A = ${JSON.stringify(A)} B=${JSON.stringify(B)} --> ${expected} `, function(){
