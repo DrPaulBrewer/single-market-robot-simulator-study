@@ -328,7 +328,7 @@ function commonKeys(objectA, objectB){
 
 /**
  * Checks if Study.morph can be safely run on config.
- * These requirements are impose on the supplied .configuration elements (usually first and last)
+ * These requirements are imposed on the supplied .configuration elements (usually first as A and last as B)
  *   + common keys exist in the first and last configurations
  *   + each common key has the same type in the first and last configurations, and each key's value is a number or array<number> or array<string>
  *   + if the values are arrays they are of the same length and have a common type
@@ -358,7 +358,6 @@ function isMorphable(A,B){
 	}
 	return false;
     }
-    if (!config || !Array.isArray(config.configurations)) return false;
     const common = commonKeys(A,B);
     if (common.length===0) return false;
     return common.all((k)=>(isValueMorphable(A[k],B[k])));
