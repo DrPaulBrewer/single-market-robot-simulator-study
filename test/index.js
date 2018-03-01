@@ -276,6 +276,17 @@ describe('Study ', function(){
 	    });
 	});
     });
+    describe(' .isMorphable ', function(){
+	const tests = [
+		[ null, null, false],
+		[ {a:1.0}, {b:2.0}, false]
+	];
+	tests.forEach(([A,B,expected])=>{
+		it(` A = ${A} B=${B} --> ${expected} `, function(){
+			Study.isMorphable(A,B).should.equal(expected);
+		});
+	});
+    });    
 });
 
 
