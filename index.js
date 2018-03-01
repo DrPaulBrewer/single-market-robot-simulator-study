@@ -360,7 +360,7 @@ function isMorphable(A,B){
     }
     const common = commonKeys(A,B);
     if (common.length===0) return false;
-    return common.all((k)=>(isValueMorphable(A[k],B[k])));
+    return common.every((k)=>(isValueMorphable(A[k],B[k])));
 }
 
 module.exports.isMorphable = isMorphable;
