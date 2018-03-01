@@ -5,6 +5,7 @@
 
 const clone = require('clone');
 const fastDeepEqual = require('fast-deep-equal');
+const intersect = require('intersect');
 
 function pad(z){
     "use strict";
@@ -318,3 +319,66 @@ const morpher = {
 };
 
 module.exports.morpher = morpher;
+
+function commonKeys(objectA, objectB){
+    if ((typeof(objectA)!=='object') || (typeof(objectB)!=='object'))
+	return [];
+    return intersect(Object.keys(objectA), Object.keys(objectB));
+}
+
+/**
+ * Checks if Study.morph can be safely run on config.
+ * These requirements are impose on the supplied .configuration elements (usually first and last)
+ *   + common keys exist in the first and last configurations
+ *   + each common key has the same type in the first and last configurations, and each key's value is a number or array<number> or array<string>
+ *   + if the values are arrays they are of the same length and have a common type
+ *
+ *  returns Boolean 
+ */
+
+function isMorphable(A,B){
+    function isValueMorphable(a,b){
+	const tA = typeof(a);
+	const tB = typeof(b);
+	if (tA!==tB) return false;
+	if (tA==='number') return true;
+	if (Array.isArray(a)){
+	    if (!Array.isArray(b)) return false;
+	    if ((a.length===0) || (a.length!==b.length)) return false;
+	    // use a simple for loop here because
+	    // higher-order methods like .forEach don't see holes in arrays
+	    const T = typeof(a[0]);
+	    if ((T==='number') || (T==='string')){
+		for(var i=0,l=a.length;i<l;++i){
+		    if ((typeof(a[i])!==T) || (typeof(b[i])!==T))
+			return false;
+		}
+		return true;
+	    }
+	}
+	return false;
+    }
+    if (!config || !Array.isArray(config.configurations)) return false;
+    const common = commonKeys(A,B);
+    if (common.length===0) return false;
+    return common.all((k)=>(isValueMorphable(A[k],B[k])));
+}
+
+module.exports.isMorphable = isMorphable;
+
+function morphSchema(A,B){
+    const common = commonKeys(A,B);
+    const schema = {
+	"title": "morph",
+	"type": "object",
+	"default": {},
+	"options": {
+	    "collapsed": false,
+	},
+	"properties": {
+	}
+    };
+    common.forEach((k)=>{
+    });
+    return schema;
+}
