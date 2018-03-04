@@ -58,7 +58,7 @@ describe('Study ', function(){
         });
     });
     describe(' .makeClassicSimulations ', function(){
-        function mysim(s){ Object.assign(this, s); }
+        function mysim(s){ Object.assign(this, s); } // jshint ignore:line
         it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },mysim) --> [new mysim({caseid:0, a:1}), new mysim({caseid:1,a:1,b:3}), new mysim({caseid:2, a:1,z:8})] ',
            function(){
                var sims = Study.makeClassicSimulations({
@@ -292,7 +292,7 @@ describe('Study ', function(){
             [ {a:['x','y','z']}, {a: [null,'x',3]}, false],
             [ {a:[null,null,null]}, {a: [null,null,null]}, false],
             [ {a:[1,2,3]}, {a:[3,4,5,6]}, false],
-            [ {a:[1,2,3]}, {a:[6,,8]}, false]
+            [ {a:[1,2,3]}, {a:[6,undefined,8]}, false] 
         ];
         tests.forEach(([A,B,expected])=>{
             it(` A = ${JSON.stringify(A)} B=${JSON.stringify(B)} --> ${expected} `, function(){
