@@ -255,6 +255,20 @@ function assignToCommon(_config, change){
 module.exports.assignToCommon = assignToCommon;
 
 /**
+ * first, delete any configuration properties that are also in common, as these are overriden anyway
+ * next, if there are two or more configurations, move all unvarying properties to common
+ *
+ */
+
+function simplify(_config){
+    const config = assignToCommon(_config, Object.keys(_config.common));
+    const propsToSimplify = unvaryingInConfigurations(config);
+    return assignToCommon(config, propsToSimplify);
+}
+
+module.exports.simplify = simplify;
+
+/**
  * If change is an Array, it is interpreted as a list of properties.
  * each property is deleted from config.common and the same property/value set
  * in each of the .configurations

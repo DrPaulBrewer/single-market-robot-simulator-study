@@ -237,6 +237,51 @@ describe('Study ', function(){
             });
         }); 
     });
+    describe(' .simplify ', function(){
+	describe(' .simplify on example1, which has only 1 configuration ', function(){
+	    const c = Study.simplify(example1);
+	    it(' simplify should clone example1, no other change ', function(){
+		c.should.deepEqual(example1);
+	    });
+	});
+	describe(' .simplify on example2, which has two distinct configurations ', function(){
+	    const c = Study.simplify(example2);
+	    it(' simplify should clone example2, no other change ', function(){
+		c.should.deepEqual(example2);
+	    });
+	});
+	describe(' .simplify on example2B, where an unvarying property (z=1) is injected ', function(){
+	    const example2B = clone(example2);
+	    const example2C = clone(example2);
+	    example2B.configurations[0].z = 1;
+	    example2B.configurations[1].z = 1;
+	    const c = Study.simplify(example2B);
+	    it(' simplify should return a different object ', function(){
+		c.should.not.deepEqual(example2B);
+	    });
+	    it(' simplify should remove z from both configurations ', function(){
+		assert.ok(c.configurations[0].z===undefined);
+		assert.ok(c.configurations[1].z===undefined);
+	    });
+	    it(' simplify should preserve all other configuration properties ', function(){
+		c.configurations[0].should.deepEqual(example2C.configurations[0]);
+		c.configurations[1].should.deepEqual(example2C.configurations[1]);
+	    });
+	    it(' simplify should assign z to .common with same value 1 ', function(){
+		c.common.z.should.equal(1);
+	    });
+	});
+	describe(' .simplify on example2E where a property conflicts between .configurations and .common ', function(){
+	    const example2E = clone(example2);
+	    example2E.configurations[0].H = 200;
+	    example2E.configurations[1].L = 100;
+	    const c = Study.simplify(example2E);
+	    it(' simplify should eliminate conflicting properties from .configurations and leave .common unchanged ', function(){
+		example2E.should.not.deepEqual(example2);
+		c.should.deepEqual(example2);
+	    });
+	});
+    });
     describe(' .assignToConfigurations ', function(){
         describe('.assignToConfigurations(example1x2,["periodDuration"] ', function(){
             const example1x2 = clone(example1);
