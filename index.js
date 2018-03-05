@@ -366,11 +366,10 @@ module.exports.isMorphable = isMorphable;
  */
 
 function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
-    const keys = intersectKeys(A,B);
     const schema = {
         "title": "morph",
         "type": "object",
-        "default": {},
+        "default": { numberOfConfigurations: suggestedNumberOfConfigurations },
         "options": {
             "collapsed": false,
         },
@@ -382,6 +381,20 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
             }
         }
     };
+    function addPropertyToSchema({k, choices, def}){
+	schema.properties[k] = {
+            "description": k,
+            "type": "string",
+            "enum": choices,
+            "default": def
+        };
+	schema.default[k] = def;
+    }
+    const keys = intersectKeys(A,B);
+    if (suggestedNumberOfConfigurations < 3)
+	throw new Error("Study.morphSchema requires suggestedNumberOfConfigurations>=3 ");
+    if (!keys || keys.length===0)
+	throw new Error("Study.morphSchema requires configurations with non-empty key intersection");
     keys.forEach((k)=>{
         if (Array.isArray(A[k])){
             const T = typeof(A[k][0]);
@@ -392,24 +405,12 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
                 if ((k==='buyerValues') || (k==='sellerCosts'))
                     def = 'interpolate';
             }
-            schema.properties[k] = {
-                "description": k,
-                "type": "string",
-                "enum": choices,
-                "default": def
-            };
+	    addPropertyToSchema({k, choices, def});
         } else if (typeof(A[k])==='number'){
             const choices = ["ignore","interpolate"];
             const def = "interpolate";
-            schema.properties[k] = {
-                "description": k,
-                "type": "string",
-                "enum":choices,
-                "default": def
-            };
-        } else {
-            // ignore property
-        }
+	    addPropertyToSchema({k, choices, def});
+	}
     });
     return schema;
 }

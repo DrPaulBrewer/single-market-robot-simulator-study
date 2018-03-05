@@ -10,6 +10,9 @@ const should = require('should');
 const assert = require('assert');
 
 const example1 = require('./example1.json');
+const example2 = require('./example2.json');
+const example3 = require('./example3.json');
+
 const clone = require('clone');
 const fastDeepEqual = require('fast-deep-equal');
 
@@ -269,7 +272,7 @@ describe('Study ', function(){
             [['interpolate', [10,20,30], [50,60,70], 0.50], [30,40,50]],
             [['interpolate', [10,20,30], [50,60,70], 0.75], [40,50,60]],
             [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]]
-        ];    
+        ];
         tests.forEach(([[f, first,last,ratio], expected])=>{
             it( ` Study.morpher.${f}([${first}],[${last}],${ratio}) --> [${expected}] `, function(){
                 Study.morpher[f](first,last,ratio).should.deepEqual(expected);
@@ -299,6 +302,55 @@ describe('Study ', function(){
                 Study.isMorphable(A,B).should.equal(expected);
             });
         });
+	it(' test/example2.json .isMorphable --> true ', function(){
+	    Study.isMorphable(example2.configurations[0],example2.configurations[1]).should.equal(true);
+	});
+    });
+    describe(' .morphSchema ', function(){
+	it('should throw if no morphing possible', function(){
+	    function empty(){ Study.morphSchema(null,null); }
+	    function notEnoughConfigurations(){ Study.morphSchema({a:1},{a:20},2); }
+	    empty.should.throw();
+	    notEnoughConfigurations.should.throw();
+	});
+	describe(' ./test/example2.json .morphSchema suggest 10 configurations ', function(){
+	    const schema = Study.morphSchema(example2.configurations[0],example2.configurations[1],10);
+	    it('schema.properties should have .numberOfConfigurations and .sellerCosts', function(){
+		schema.properties.should.have.properties('numberOfConfigurations','sellerCosts');
+	    });
+	    it('should have .numberOfConfigurations configured for JSONEditor ', function(){
+		schema.properties.numberOfConfigurations.should.have.properties('description','type','default');
+		schema.properties.numberOfConfigurations.default.should.equal(10);
+		schema.default.numberOfConfigurations.should.equal(10);
+	    });
+	    it('should have .sellerCosts configured for JSONEditor ', function(){
+		schema.properties.sellerCosts.should.have.properties('description','type','default','enum');
+		schema.properties.sellerCosts.description.should.equal('sellerCosts');
+		schema.properties.sellerCosts.type.should.equal('string');
+		schema.properties.sellerCosts.default.should.equal('interpolate');
+		schema.properties.sellerCosts.enum.should.deepEqual(['ignore','left','right','interpolate']);
+		schema.default.sellerCosts.should.equal('interpolate');
+	    });
+	});
+	describe(' ./test/example3.json .morphSchema suggest 10 configurations ', function(){
+	    const schema = Study.morphSchema(example3.configurations[0],example3.configurations[1],10);
+	    it('schema.properties should have .numberOfConfigurations and .buyerAgentType', function(){
+		schema.properties.should.have.properties('numberOfConfigurations','buyerAgentType');
+	    });
+	    it('should have .numberOfConfigurations configured for JSONEditor ', function(){
+		schema.properties.numberOfConfigurations.should.have.properties('description','type','default');
+		schema.properties.numberOfConfigurations.default.should.equal(10);
+		schema.default.numberOfConfigurations.should.equal(10);
+	    });
+	    it('should have .buyerAgentType configured for JSONEditor ', function(){
+		schema.properties.buyerAgentType.should.have.properties('description','type','default','enum');
+		schema.properties.buyerAgentType.description.should.equal('buyerAgentType');
+		schema.properties.buyerAgentType.type.should.equal('string');
+		schema.properties.buyerAgentType.default.should.equal('left');
+		schema.properties.buyerAgentType.enum.should.deepEqual(['ignore','left','right']);
+		schema.default.buyerAgentType.should.equal('left');
+	    });
+	});
     });
 });
 
