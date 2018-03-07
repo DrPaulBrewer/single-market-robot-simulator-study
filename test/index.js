@@ -397,7 +397,87 @@ describe('Study ', function(){
 	    });
 	});
     });
+    describe(' .morph ', function(){
+	function doTest(config, morphConfig, expected){
+	    const c = Study.morph(config, morphConfig);
+	    function checkConfig(k){
+		it(`should have expected .configurations[${k}] `,
+		   ()=>(c.configurations[k].should.deepEqual(expected[k-1]))
+		  );
+	    }
+	    it('should not modify .common ', function(){
+		c.common.should.deepEqual(config.common);
+	    });
+	    it('should not modify .configurations[0] ', function(){
+		c.configurations[0].should.deepEqual(config.configurations[0]);
+	    });
+	    for(var j=1;j<(morphConfig.numberOfConfigurations-1);++j){
+		checkConfig(j);
+	    }
+	    it('should not modify last of .configurations ', function(){
+		c.configurations.slice(-1)[0].should.deepEqual(config.configurations[1]);
+	    });   
+	}
+	describe(' example2 morph sellerCosts:ignore ', function(){
+	    const expected = [{},{},{}];
+	    doTest(example2, {numberOfConfigurations:5, sellerCosts: 'ignore'}, expected);
+	});
+	describe(' example2 morph sellerCosts:left ', function(){
+	    const expected = [
+		[30,40,30,40,50,60,70,80,90,100],
+		[30,40,50,60,50,60,70,80,90,100],
+		[30,40,50,60,70,80,70,80,90,100],
+		[30,40,50,60,70,80,90,100,90,100]
+	    ].map((a)=>({sellerCosts:a}));
+	    doTest(example2, {numberOfConfigurations:5, sellerCosts: 'left'}, expected);
+	});
+	describe(' example2 morph sellerCosts:right ', function(){
+	    const expected = [
+		[10,20,30,40,50,60,70,80,110,120],
+		[10,20,30,40,50,60,90,100,110,120],
+		[10,20,30,40,70,80,90,100,110,120],
+		[10,20,50,60,70,80,90,100,110,120]
+	    ].map((a)=>({sellerCosts:a}));
+	    doTest(example2, {numberOfConfigurations:5, sellerCosts: 'right'}, expected);
+	});
+	describe(' example2 morph sellerCosts:interpolate ', function(){
+	    const expected = [
+		[14,24,34,44,54,64,74,84,94,104],
+		[18,28,38,48,58,68,78,88,98,108],
+		[22,32,42,52,62,72,82,92,102,112],
+		[26,36,46,56,66,76,86,96,106,116],
+	    ].map((a)=>({ sellerCosts: a }));
+	    doTest(example2, {numberOfConfigurations:5, sellerCosts: 'interpolate'}, expected);
+	});
+	describe(' example2 morph sellerCosts:ignore ', function(){
+	    const expected = [{},{},{}];
+	    doTest(example2, {numberOfConfigurations:5, sellerCosts: 'ignore'}, expected);
+	});
+	function toAgent(s){
+	    const agentMap = {
+		'U': 'UnitAgent',
+		'Z': 'ZIAgent'
+	    };
+	    const agents = s.split('').map((c)=>(agentMap[c]));
+	    return { buyerAgentType: agents };
+	}
+	describe(' example3 morph buyerAgentType:left ', function(){
+	    const expected = [
+		'UUZZZZZZZZ',
+		'UUUUZZZZZZ',
+		'UUUUUUZZZZ',
+		'UUUUUUUUZZ'
+	    ].map(toAgent);
+	    doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'left'}, expected);
+	});
+	describe(' example3 morph buyerAgentType:right ', function(){
+	    const expected = [
+		'ZZZZZZZZUU',
+		'ZZZZZZUUUU',
+		'ZZZZUUUUUU',
+		'ZZUUUUUUUU'
+	    ].map(toAgent);
+	    doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'right'}, expected);
+	}); 
+    });
 });
-
-
-

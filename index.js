@@ -306,21 +306,21 @@ module.exports.assignToConfigurations = assignToConfigurations;
 
 const morpher = {
     interpolate: (x0,x1,r) => {
-        if (Array.isArray(x0))
+        if (Array.isArray(x0) && Array.isArray(x1))
             return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
         if (typeof(x0)==='number')
             return x0*(1-r)+x1*r;
         throw new Error("Study.morpher.interpolate requires number or number array");
     },
     left: (x0,x1,r) => {
-        if (Array.isArray(x0)){
+        if (Array.isArray(x0) && Array.isArray(x1)){
             const n = Math.round(r*x0.length);
             return [].concat(x1.slice(0,n),x0.slice(n));
         }
         throw new Error("Study.morpher.left requires array");
     },
     right: (x0,x1,r) => {
-        if (Array.isArray(x0)){
+        if (Array.isArray(x0) && Array.isArray(x1)){
             const n = Math.round(r*x0.length);
             return [].concat(x0.slice(0,x0.length-n),x1.slice(x1.length-n));
         }
@@ -430,3 +430,39 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
 }
 
 module.exports.morphSchema = morphSchema;
+
+function morph(_config, morphConfig){
+    const config = clone(_config);
+    const nConfig = morphConfig.numberOfConfigurations;
+    if ((typeof(nConfig)!=='number') || (!(nConfig>2)))
+	throw new Error("morph: morphConfig.numberOfConfigurations must be a number greater than 2, got: "+nConfig);
+    const A = config.configurations[0];
+    const B = config.configurations[config.configurations.length-1];
+    config.configurations = new Array(nConfig).fill(0).map(()=>({}));
+    config.configurations[0]=clone(A);
+    config.configurations[nConfig-1]=clone(B);
+    function explicitlyExpandToFitNumberOfAgents(cfg,k){
+	let nAgents = 0;
+	if (k.startsWith("buyer")){
+	    nAgents = config.common.numberOfBuyers;
+	    if (!nAgents) throw new Error("Study.morph requires .common.numberOfBuyers to be a positive integer, got: "+nAgents);
+	} else if (k.startsWith("seller")){
+	    nAgents = config.common.numberOfSellers;
+	    if (!nAgents) throw new Error("Study.morph requires .common.numberOfSellers to be a positive integer, got: "+nAgents);
+	}
+	const original = clone(cfg[k]);
+	const l = original.length;
+	cfg[k] = new Array(nAgents).fill(0).map((j)=>(original[j%l]));
+    }
+    const preExpandList = ['buyerAgentType','sellerAgentType','buyerRate','sellerRate'];
+    [A,B].forEach((X)=>(preExpandList.forEach((k)=>{ if (X[k]) explicitlyExpandToFitNumberOfAgents(X,k); })));
+    Object.keys(morphConfig).filter((k)=>(k!=='numberOfConfigurations') && (morphConfig[k]!=='ignore')).forEach((k)=>{
+	const morphFunc = morpher[morphConfig[k]];
+	for(let i=1;i<(nConfig-1);i++){
+	    config.configurations[i][k] = morphFunc(A[k],B[k],i/nConfig);
+	}
+    });
+    return config;
+}
+
+module.exports.morph = morph;
