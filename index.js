@@ -452,7 +452,7 @@ function morph(_config, morphConfig){
 	}
 	const original = clone(cfg[k]);
 	const l = original.length;
-	cfg[k] = new Array(nAgents).fill(0).map((j)=>(original[j%l]));
+	cfg[k] = new Array(nAgents).fill(0).map((v,j)=>(original[j%l]));
     }
     const preExpandList = ['buyerAgentType','sellerAgentType','buyerRate','sellerRate'];
     [A,B].forEach((X)=>(preExpandList.forEach((k)=>{ if (X[k]) explicitlyExpandToFitNumberOfAgents(X,k); })));
