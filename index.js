@@ -54,7 +54,7 @@ module.exports.commonFrom = commonFrom;
  * @param {string} pathToStudyJSON path to the study "config.json" file
  * @param {number} numberOfConfigurations the number of configurations, e.g. study.configurations.length
  * @param {filename} filename to append to resulting path in each directory
- * @return {string[]} 
+ * @return {string[]}
  */
 
 function paths(pathToStudyJSON, numberOfConfigurations,filename){
@@ -69,21 +69,27 @@ function paths(pathToStudyJSON, numberOfConfigurations,filename){
 module.exports.paths = paths;
 
 /**
- * Create new simulations from ~ Jan-2017 original study cfg format 
+ * Create new simulations from ~ Jan-2017 original study cfg format
  * @param {Object} cfg The study configuration
- * @param {Array<Object>} cfg.configurations An array of SMRS.Simulation() configurations, one for each independent simulation in a study.  
+ * @param {Array<Object>} cfg.configurations An array of SMRS.Simulation() configurations, one for each independent simulation in a study.
  * @param {Object} cfg.common Common simulation configuration settings to be forced in all simulations. (if there is a conflict, common has priority over and overrides configurations)
  * @param {Object} Simulation A reference to the (possibly forked) single-market-robot-simulator.Simulation constructor function
+ * @param {Array<number>} subset (optional) Defaults to "all".  An array of indices for which to produce simulations
  * @return {Array<Object>} array of new SMRS.Simulation - each simulation will be initialized but not running
  */
 
-function makeClassicSimulations(cfg, Simulation){
+function makeClassicSimulations(cfg, Simulation, subset){
     if (!cfg) return [];
     if (!(Array.isArray(cfg.configurations))) return [];
-    return (cfg
-            .configurations
+    let configurations = [];
+    if (Array.isArray(subset)) configurations = subset.map((v) => (cfg.configurations[v]));
+    else configurations = cfg.configurations;
+    configurations.forEach((s,j) => {
+      if (!s.caseid)
+        s.caseid = ( (subset && subset[j]) || j);
+    })
+    return (configurations
             .map(commonFrom(cfg))
-            .map((s,j)=>{ if (s.caseid===undefined) s.caseid=j; return s; })
             .map((s)=>(new Simulation(s)))
            );
 }
@@ -145,7 +151,7 @@ module.exports.expander = expander;
 /**
  * clones study _config and modifies it for expansion.
  * If the number of buyers or sellers is 1, that number is unchanged.  Otherwise, multiplies the number of buyers and sellers by xfactor.
- * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name. 
+ * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name.
  */
 
 function expand(_config, xfactor, how){
@@ -222,7 +228,7 @@ module.exports.unvaryingInConfigurations = unvaryingInConfigurations;
  * in common, are set from the first defined configuration
  *
  * if change is an Object, its props/values are set in .common and deleted in all configurations
- * 
+ *
  *
  * if change is an object, its properties are included into common,
  * and deleted from any of the .configurations
@@ -343,7 +349,7 @@ function intersectKeys(objectA, objectB){
  *   + each common key has the same type in the first and last configurations, and each key's value is a number or array<number> or array<string>
  *   + if the values are arrays they are of the same length and have a common type
  *
- *  returns Boolean 
+ *  returns Boolean
  */
 
 function isMorphable(A,B){

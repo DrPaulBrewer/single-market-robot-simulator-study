@@ -63,21 +63,37 @@ describe('Study ', function(){
     describe(' .makeClassicSimulations ', function(){
         function mysim(s){ Object.assign(this, s); } // jshint ignore:line
         it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },mysim) --> [new mysim({caseid:0, a:1}), new mysim({caseid:1,a:1,b:3}), new mysim({caseid:2, a:1,z:8})] ',
-           function(){
-               var sims = Study.makeClassicSimulations({
-                   common: {a:1},
-                   configurations: [
-                       {},
-                       {a:0,b:3},
-                       {z:8}
-                   ]
-               }, mysim);
-               sims.should.deepEqual([
-                   new mysim({caseid:0,a:1}),
-                   new mysim({caseid:1,a:1,b:3}),
-                   new mysim({caseid:2,a:1,z:8})
-               ]);
-           });
+        function(){
+          var sims = Study.makeClassicSimulations({
+            common: {a:1},
+            configurations: [
+              {},
+              {a:0,b:3},
+              {z:8}
+            ]
+          }, mysim);
+          sims.should.deepEqual([
+            new mysim({caseid:0,a:1}),
+            new mysim({caseid:1,a:1,b:3}),
+            new mysim({caseid:2,a:1,z:8})
+          ]);
+        });
+        it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },mysim,[0,2]) --> [new mysim({caseid:0, a:1}), new mysim({caseid:2, a:1,z:8})] ',
+        function(){
+          var sims = Study.makeClassicSimulations({
+            common: {a:1},
+            configurations: [
+              {},
+              {a:0,b:3},
+              {z:8}
+            ]
+          }, mysim, [0,2]);
+          sims.should.deepEqual([
+            new mysim({caseid:0,a:1}),
+            new mysim({caseid:2,a:1,z:8})
+          ]);
+        });
+
     });
     describe(' .metaSummary ', function(){
         const name = "Example-1";
@@ -105,7 +121,7 @@ describe('Study ', function(){
                     if (Array.isArray(goal))
                         Study.expander.interpolate.apply(null, params).should.deepEqual(goal);
                     if ((typeof(goal)==='string') && (goal.startsWith("throws")))
-                        ( ()=>(Study.expander.interpolate.apply(null, params)) ).should.throw();                        
+                        ( ()=>(Study.expander.interpolate.apply(null, params)) ).should.throw();
                 });
             });
         });
@@ -124,7 +140,7 @@ describe('Study ', function(){
                     if (Array.isArray(goal))
                         Study.expander.duplicate.apply(null, params).should.deepEqual(goal);
                     if ((typeof(goal)==='string') && (goal.startsWith("throws")))
-                        ( ()=>(Study.expander.duplicate.apply(null, params)) ).should.throw();                  
+                        ( ()=>(Study.expander.duplicate.apply(null, params)) ).should.throw();
                 });
             });
         });
@@ -235,7 +251,7 @@ describe('Study ', function(){
                 assert(example1AMod.common.buyerRate!==change.buyerRate);
                 assert(example1AMod.common.sellerRate!==change.sellerRate);
             });
-        }); 
+        });
     });
     describe(' .simplify ', function(){
 	describe(' .simplify on example1, which has only 1 configuration ', function(){
@@ -298,7 +314,7 @@ describe('Study ', function(){
             it('output does not have .periodDuration in .common', function(){
                 example1AMod.common.should.not.have.property('periodDuration');
             });
-        });     
+        });
     });
     describe(' .morpher ', function(){
         const tests = [
@@ -340,7 +356,7 @@ describe('Study ', function(){
             [ {a:['x','y','z']}, {a: [null,'x',3]}, false],
             [ {a:[null,null,null]}, {a: [null,null,null]}, false],
             [ {a:[1,2,3]}, {a:[3,4,5,6]}, false],
-            [ {a:[1,2,3]}, {a:[6,undefined,8]}, false] 
+            [ {a:[1,2,3]}, {a:[6,undefined,8]}, false]
         ];
         tests.forEach(([A,B,expected])=>{
             it(` A = ${JSON.stringify(A)} B=${JSON.stringify(B)} --> ${expected} `, function(){
@@ -416,7 +432,7 @@ describe('Study ', function(){
 	    }
 	    it('should not modify last of .configurations ', function(){
 		c.configurations.slice(-1)[0].should.deepEqual(config.configurations[1]);
-	    });   
+	    });
 	}
 	describe(' example2 morph sellerCosts:ignore ', function(){
 	    const expected = [{},{},{}];
@@ -478,6 +494,6 @@ describe('Study ', function(){
 		'ZZUUUUUUUU'
 	    ].map(toAgent);
 	    doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'right'}, expected);
-	}); 
+	});
     });
 });
