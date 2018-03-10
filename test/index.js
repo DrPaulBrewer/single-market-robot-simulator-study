@@ -12,6 +12,7 @@ const assert = require('assert');
 const example1 = require('./example1.json');
 const example2 = require('./example2.json');
 const example3 = require('./example3.json');
+const example4 = require('./example4.json');
 
 const clone = require('clone');
 const fastDeepEqual = require('fast-deep-equal');
@@ -495,5 +496,20 @@ describe('Study ', function(){
           ].map(toAgent);
           doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'right'}, expected);
         });
+	  describe(' example4 morph buyerAgentType:left 101 configs ', function(){
+	      const c = Study.morph(example4,{numberOfConfigurations:101, buyerAgentType:'left'});
+	      it('.configurations[1].buyerAgentType should have 5 UnitAgent ', function(){
+		  c.configurations[1].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(5);
+	      });
+	      it('.configurations[98].buyerAgentType should have 490 UnitAgent ', function(){
+		  c.configurations[98].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(490);
+	      });
+	      it('.configurations[99].buyerAgentType should have 495 UnitAgent ', function(){
+		  c.configurations[99].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(495);
+	      });
+	      it('.configurations[100].buyerAgentType should have all UnitAgent ', function(){
+		  c.configurations[100].buyerAgentType.should.deepEqual(['UnitAgent']);
+	      });
+	  });
       });
     });
