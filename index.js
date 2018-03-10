@@ -312,11 +312,9 @@ module.exports.assignToConfigurations = assignToConfigurations;
 
 const morpher = {
   interpolate: (x0,x1,r) => {
-    if (Array.isArray(x0) && Array.isArray(x1))
-    return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
-    if (typeof(x0)==='number')
-    return x0*(1-r)+x1*r;
-    throw new Error("Study.morpher.interpolate requires number or number array");
+      if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));  
+      if (typeof(x0)==='number') return x0*(1-r)+x1*r;
+      throw new Error("Study.morpher.interpolate requires number or number array");
   },
   left: (x0,x1,r) => {
     if (Array.isArray(x0) && Array.isArray(x1)){
@@ -465,7 +463,7 @@ function morph(_config, morphConfig){
   Object.keys(morphConfig).filter((k)=>(k!=='numberOfConfigurations') && (morphConfig[k]!=='ignore')).forEach((k)=>{
     const morphFunc = morpher[morphConfig[k]];
     for(let i=1;i<(nConfig-1);i++){
-      config.configurations[i][k] = morphFunc(A[k],B[k],i/nConfig);
+	config.configurations[i][k] = morphFunc(A[k],B[k],i/(nConfig-1));
     }
   });
   return config;

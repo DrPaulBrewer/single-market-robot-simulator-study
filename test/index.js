@@ -1,4 +1,4 @@
-/* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
+1/* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
 /* jshint mocha:true,browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true */
@@ -335,6 +335,11 @@ describe('Study ', function(){
           [['interpolate', [10,20,30], [50,60,70], 0.75], [40,50,60]],
           [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]]
         ];
+	  const A100 = new Array(100).fill(0).map((v,j)=>(1+j));
+	  const B100 = new Array(100).fill(0).map((v,j)=>(1001+j));
+	  const L100 = new Array(100).fill(0).map((v,j)=>((j<98)?(1001+j):(1+j)));
+	  tests.push([['left',A100,B100,0.98], L100]);
+	  
         tests.forEach(([[f, first,last,ratio], expected])=>{
           it( ` Study.morpher.${f}([${first}],[${last}],${ratio}) --> [${expected}] `, function(){
             Study.morpher[f](first,last,ratio).should.deepEqual(expected);
@@ -425,6 +430,9 @@ describe('Study ', function(){
           it('should not modify .common ', function(){
             c.common.should.deepEqual(config.common);
           });
+	    it(`c.configurations.length (${c.configurations.length}) should equal 2+expected.length (${expected.length}) `, function(){
+		c.configurations.length.should.equal(expected.length+2);
+	    });
           it('should not modify .configurations[0] ', function(){
             c.configurations[0].should.deepEqual(config.configurations[0]);
           });
@@ -436,8 +444,8 @@ describe('Study ', function(){
           });
         }
         describe(' example2 morph sellerCosts:ignore ', function(){
-          const expected = [{},{},{}];
-          doTest(example2, {numberOfConfigurations:5, sellerCosts: 'ignore'}, expected);
+            const expected = [{},{},{},{}];
+          doTest(example2, {numberOfConfigurations:6, sellerCosts: 'ignore'}, expected);
         });
         describe(' example2 morph sellerCosts:left ', function(){
           const expected = [
@@ -446,7 +454,7 @@ describe('Study ', function(){
             [30,40,50,60,70,80,70,80,90,100],
             [30,40,50,60,70,80,90,100,90,100]
           ].map((a)=>({sellerCosts:a}));
-          doTest(example2, {numberOfConfigurations:5, sellerCosts: 'left'}, expected);
+          doTest(example2, {numberOfConfigurations:6, sellerCosts: 'left'}, expected);
         });
         describe(' example2 morph sellerCosts:right ', function(){
           const expected = [
@@ -455,7 +463,7 @@ describe('Study ', function(){
             [10,20,30,40,70,80,90,100,110,120],
             [10,20,50,60,70,80,90,100,110,120]
           ].map((a)=>({sellerCosts:a}));
-          doTest(example2, {numberOfConfigurations:5, sellerCosts: 'right'}, expected);
+          doTest(example2, {numberOfConfigurations:6, sellerCosts: 'right'}, expected);
         });
         describe(' example2 morph sellerCosts:interpolate ', function(){
           const expected = [
@@ -464,11 +472,7 @@ describe('Study ', function(){
             [22,32,42,52,62,72,82,92,102,112],
             [26,36,46,56,66,76,86,96,106,116],
           ].map((a)=>({ sellerCosts: a }));
-          doTest(example2, {numberOfConfigurations:5, sellerCosts: 'interpolate'}, expected);
-        });
-        describe(' example2 morph sellerCosts:ignore ', function(){
-          const expected = [{},{},{}];
-          doTest(example2, {numberOfConfigurations:5, sellerCosts: 'ignore'}, expected);
+          doTest(example2, {numberOfConfigurations:6, sellerCosts: 'interpolate'}, expected);
         });
         function toAgent(s){
           const agentMap = {
@@ -485,7 +489,7 @@ describe('Study ', function(){
             'UUUUUUZZZZ',
             'UUUUUUUUZZ'
           ].map(toAgent);
-          doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'left'}, expected);
+          doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'left'}, expected);
         });
         describe(' example3 morph buyerAgentType:right ', function(){
           const expected = [
@@ -494,7 +498,7 @@ describe('Study ', function(){
             'ZZZZUUUUUU',
             'ZZUUUUUUUU'
           ].map(toAgent);
-          doTest(example3, {numberOfConfigurations:5, buyerAgentType: 'right'}, expected);
+          doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'right'}, expected);
         });
 	  describe(' example4 morph buyerAgentType:left 101 configs ', function(){
 	      const c = Study.morph(example4,{numberOfConfigurations:101, buyerAgentType:'left'});
