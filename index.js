@@ -1,9 +1,6 @@
 /* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
-/* jshint browserify:true,esversion:6,eqeqeq:true,undef:true,lastsemic:true,strict:true,unused:true */
-
-"use strict";
 
 const clone = require('clone');
 const fastDeepEqual = require('fast-deep-equal');
@@ -16,7 +13,7 @@ function pad(z){
     return (x<10)? ("0"+x) : (''+x);
 }
 
-module.exports.pad = pad;
+module.exports.pad = pad; 
 
 function myDateStamp(thedate){
     const now = thedate || new Date();
@@ -59,9 +56,9 @@ module.exports.commonFrom = commonFrom;
 
 function paths(pathToStudyJSON, numberOfConfigurations,filename){
     const list = [];
-    const filenameRegex = /[^\/]*$/;
+    const filenameRegex = /[^/]*$/;
     const f = filename || '';
-    for(var j=0,l=numberOfConfigurations; j<l; ++j)
+    for(let j=0,l=numberOfConfigurations;j<l;++j)
         list.push(pathToStudyJSON.replace(filenameRegex, pad(j)+"/"+f));
     return list;
 }
@@ -87,14 +84,14 @@ function makeClassicSimulations(cfg, Simulation, subset){
     configurations.forEach((s,j) => {
         if (!s.caseid)
             s.caseid = ( (subset && subset[j]) || j);
-    })
+    });
     return (configurations
             .map(commonFrom(cfg))
             .map((s)=>(new Simulation(s)))
            );
 }
 
-module.exports.makeClassicSimulations = makeClassicSimulations ;
+module.exports.makeClassicSimulations = makeClassicSimulations;
 
 function metaSummary(cfg){
     const meta = {};
@@ -112,7 +109,6 @@ function metaSummary(cfg){
 }
 
 module.exports.metaSummary = metaSummary;
-
 
 
 /**
@@ -363,7 +359,7 @@ function isMorphable(A,B){
             // higher-order methods like .forEach don't see holes in arrays
             const T = typeof(a[0]);
             if ((T==='number') || (T==='string')){
-                for(var i=0,l=a.length;i<l;++i){
+                for(let i=0,l=a.length;i<l;++i){
                     if ((typeof(a[i])!==T) || (typeof(b[i])!==T))
                         return false;
                 }
@@ -389,7 +385,7 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
         "type": "object",
         "default": { numberOfConfigurations: suggestedNumberOfConfigurations },
         "options": {
-            "collapsed": false,
+            "collapsed": false
         },
         "properties": {
             "numberOfConfigurations": {
@@ -442,7 +438,11 @@ function morph(_config, morphConfig){
         throw new Error("morph: morphConfig.numberOfConfigurations must be a number greater than 2, got: "+nConfig);
     const A = config.configurations[0];
     const B = config.configurations[config.configurations.length-1];
-    config.configurations = new Array(nConfig).fill(0).map(()=>({}));
+    config.configurations = (
+      new Array(nConfig)
+      .fill(0)
+      .map(()=>({}))
+    );
     config.configurations[0]=clone(A);
     config.configurations[nConfig-1]=clone(B);
     function explicitlyExpandToFitNumberOfAgents(cfg,k){
@@ -456,16 +456,24 @@ function morph(_config, morphConfig){
         }
         const original = clone(cfg[k]);
         const l = original.length;
-        cfg[k] = new Array(nAgents).fill(0).map((v,j)=>(original[j%l]));
+        cfg[k] = (
+          new Array(nAgents)
+          .fill(0)
+          .map((v,j)=>(original[j%l]))
+        );
     }
     const preExpandList = ['buyerAgentType','sellerAgentType','buyerRate','sellerRate'];
     [A,B].forEach((X)=>(preExpandList.forEach((k)=>{ if (X[k]) explicitlyExpandToFitNumberOfAgents(X,k); })));
-    Object.keys(morphConfig).filter((k)=>(k!=='numberOfConfigurations') && (morphConfig[k]!=='ignore')).forEach((k)=>{
+    (Object
+      .keys(morphConfig)
+      .filter((k)=>(k!=='numberOfConfigurations') && (morphConfig[k]!=='ignore'))
+      .forEach((k)=>{
         const morphFunc = morpher[morphConfig[k]];
         for(let i=1;i<(nConfig-1);i++){
             config.configurations[i][k] = morphFunc(A[k],B[k],i/(nConfig-1));
         }
-    });
+      })
+    );
     return config;
 }
 
