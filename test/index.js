@@ -1,12 +1,11 @@
-1/* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
+/* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
 /* jshint mocha:true,browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true */
-
-"use strict";
+/* eslint-env node, mocha */
 
 const Study = require("../index.js");
-const should = require('should');
+require('should');
 const assert = require('assert');
 
 const example1 = require('./example1.json');
@@ -15,7 +14,6 @@ const example3 = require('./example3.json');
 const example4 = require('./example4.json');
 
 const clone = require('clone');
-const fastDeepEqual = require('fast-deep-equal');
 
 describe('Study ', function(){
   describe(' .pad() ', function(){
@@ -62,36 +60,36 @@ describe('Study ', function(){
         });
       });
       describe(' .makeClassicSimulations ', function(){
-        function mysim(s){ Object.assign(this, s); } // jshint ignore:line
-        it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },mysim) --> [new mysim({caseid:0, a:1}), new mysim({caseid:1,a:1,b:3}), new mysim({caseid:2, a:1,z:8})] ',
+        function MySim(s){ Object.assign(this, s); } 
+        it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },MySim) --> [new MySim({caseid:0, a:1}), new MySim({caseid:1,a:1,b:3}), new MySim({caseid:2, a:1,z:8})] ',
         function(){
-          var sims = Study.makeClassicSimulations({
+          const sims = Study.makeClassicSimulations({
             common: {a:1},
             configurations: [
               {},
               {a:0,b:3},
               {z:8}
             ]
-          }, mysim);
+          }, MySim);
           sims.should.deepEqual([
-            new mysim({caseid:0,a:1}),
-            new mysim({caseid:1,a:1,b:3}),
-            new mysim({caseid:2,a:1,z:8})
+            new MySim({caseid:0,a:1}),
+            new MySim({caseid:1,a:1,b:3}),
+            new MySim({caseid:2,a:1,z:8})
           ]);
         });
-        it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },mysim,[0,2]) --> [new mysim({caseid:0, a:1}), new mysim({caseid:2, a:1,z:8})] ',
+        it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },MySim,[0,2]) --> [new MySim({caseid:0, a:1}), new MySim({caseid:2, a:1,z:8})] ',
         function(){
-          var sims = Study.makeClassicSimulations({
+          const sims = Study.makeClassicSimulations({
             common: {a:1},
             configurations: [
               {},
               {a:0,b:3},
               {z:8}
             ]
-          }, mysim, [0,2]);
+          }, MySim, [0,2]);
           sims.should.deepEqual([
-            new mysim({caseid:0,a:1}),
-            new mysim({caseid:2,a:1,z:8})
+            new MySim({caseid:0,a:1}),
+            new MySim({caseid:2,a:1,z:8})
           ]);
         });
 
@@ -109,13 +107,13 @@ describe('Study ', function(){
       describe(' .expander', function(){
         describe(' .interpolate ', function(){
           const tests = [
-            [ [[200,150,100,50,0],2], [200,175,150,125,100,75,50,25,0,0] ],
-            [ [[2100,1800,1200,300,0], 3], [2100,2000,1900,1800,1600,1400,1200,900,600,300,200,100,0,0,0] ],
-            [ [[10,20],10], [10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,20,20,20,20] ],
-            [ [[100], 4], [100,100,100,100] ],
-            [ [[], 5], [] ],
-            [ [{}, 5], [] ],
-            [ [undefined, 5], "throws"]
+            [[[200,150,100,50,0],2], [200,175,150,125,100,75,50,25,0,0]],
+            [[[2100,1800,1200,300,0], 3], [2100,2000,1900,1800,1600,1400,1200,900,600,300,200,100,0,0,0]],
+            [[[10,20],10], [10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,20,20,20,20]],
+            [[[100], 4], [100,100,100,100]],
+            [[[], 5], []],
+            [[{}, 5], []],
+            [[undefined, 5], "throws"]
           ];
           tests.forEach(([params, goal])=>{
             it(' .interpolate('+JSON.stringify(params[0])+','+params[1]+') --> '+JSON.stringify(goal), function(){
@@ -128,13 +126,13 @@ describe('Study ', function(){
         });
         describe(' .duplicate ', function(){
           const tests = [
-            [ [[200,150,100,50,0],2], [200,200,150,150,100,100,50,50,0,0] ],
-            [ [[2100,1800,1200,300,0], 3], [2100,2100,2100,1800,1800,1800,1200,1200,1200,300,300,300,0,0,0] ],
-            [ [[10,20],10], [10,10,10,10,10,10,10,10,10,10,20,20,20,20,20,20,20,20,20,20] ],
-            [ [[100], 4], [100,100,100,100] ],
-            [ [[], 5], [] ],
-            [ [{}, 5], [] ],
-            [ [undefined, 5], "throws"]
+            [[[200,150,100,50,0],2], [200,200,150,150,100,100,50,50,0,0]],
+            [[[2100,1800,1200,300,0], 3], [2100,2100,2100,1800,1800,1800,1200,1200,1200,300,300,300,0,0,0]],
+            [[[10,20],10], [10,10,10,10,10,10,10,10,10,10,20,20,20,20,20,20,20,20,20,20]],
+            [[[100], 4], [100,100,100,100]],
+            [[[], 5], []],
+            [[{}, 5], []],
+            [[undefined, 5], "throws"]
           ];
           tests.forEach(([params, goal])=>{
             it(' .duplicate('+JSON.stringify(params[0])+','+params[1]+') --> '+JSON.stringify(goal), function(){
@@ -147,8 +145,16 @@ describe('Study ', function(){
         });
       });
       describe(' .expand ', function(){
-        const manualBuyerValues=new Array(80).fill(0).map((v,j)=>((j>75)? 5: (80-j)));
-        const manualSellerCosts=new Array(50).fill(0).map((v,j)=>(j>45)? 100: (10+2*j));
+        const manualBuyerValues=
+        (new Array(80)
+            .fill(0)
+            .map((v,j)=>((j>75)? 5: (80-j)))
+        );
+        const manualSellerCosts=
+        (new Array(50)
+            .fill(0)
+            .map((v,j)=>(j>45)? 100: (10+2*j))
+        );
         it(' .expand(example1,5,Study.expander.interpolate).common should match example1 common because costs and values are in .configurations', function(){
           Study.expand(example1,5,Study.expander.interpolate).common.should.deepEqual(example1.common);
         });
@@ -158,7 +164,7 @@ describe('Study ', function(){
         it(' .expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts matches manual calculation ', function(){
           Study.expand(example1,5,Study.expander.interpolate).configurations[0].sellerCosts.should.deepEqual(manualSellerCosts);
         });
-        it (' expanded buyerRate, sellerRate, buyerAgentType, sellerAgentType matches original because each of these has only one setting in original ', function(){
+        it(' expanded buyerRate, sellerRate, buyerAgentType, sellerAgentType matches original because each of these has only one setting in original ', function(){
           const expanded = Study.expand(example1,5,Study.expander.interpolate).configurations[0];
           ['buyerRate','sellerRate','buyerAgentType','sellerAgentType'].forEach((prop)=>{
             expanded[prop].should.deepEqual(example1.configurations[0][prop]);
@@ -233,7 +239,7 @@ describe('Study ', function(){
         });
         describe('.assignToCommon(example1, { buyerRate: [0.5], sellerRate: [0.3] } ', function(){
           const example1A = clone(example1);
-          const br = example1A.configurations[0].buyerRate;
+          // const br = example1A.configurations[0].buyerRate;
           const change = { buyerRate: [0.5], sellerRate: [0.3] };
           const example1AMod = Study.assignToCommon(example1A, change);
           it('original study input object is unmodified', function(){
@@ -335,12 +341,11 @@ describe('Study ', function(){
           [['interpolate', [10,20,30], [50,60,70], 0.75], [40,50,60]],
           [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]]
         ];
-	  const A100 = new Array(100).fill(0).map((v,j)=>(1+j));
-	  const B100 = new Array(100).fill(0).map((v,j)=>(1001+j));
-	  const L100 = new Array(100).fill(0).map((v,j)=>((j<98)?(1001+j):(1+j)));
-	  tests.push([['left',A100,B100,0.98], L100]);
-	  
-        tests.forEach(([[f, first,last,ratio], expected])=>{
+    const A100 = new Array(100).fill(0).map((v,j)=>(1+j));
+    const B100 = new Array(100).fill(0).map((v,j)=>(1001+j));
+    const L100 = new Array(100).fill(0).map((v,j)=>((j<98)?(1001+j):(1+j)));
+    tests.push([['left',A100,B100,0.98], L100]);
+    tests.forEach(([[f, first,last,ratio], expected])=>{
           it( ` Study.morpher.${f}([${first}],[${last}],${ratio}) --> [${expected}] `, function(){
             Study.morpher[f](first,last,ratio).should.deepEqual(expected);
           });
@@ -348,21 +353,21 @@ describe('Study ', function(){
       });
       describe(' .isMorphable ', function(){
         const tests = [
-          [ null, null, false],
-          [ {a:1.0}, {b:2.0}, false],
-          [ {a:1,b:2}, {b:2}, true],
-          [ {a:1,b:3,c:1}, {b:1}, true],
-          [ {a:1,b:"yellow",c:1}, {b:1}, false],
-          [ {a:1,b:"yellow",c:1}, {b:"orange"}, false],
-          [ {a:[1,2,3]}, {a: null}, false],
-          [ {a:[1,2,3]}, {a:{foo: "bar"}}, false],
-          [ {a:[1,2,3]}, {a: [3,4,5]}, true],
-          [ {a:['x','y','z']}, {a: [3,4,5]}, false],
-          [ {a:['x','y','z']}, {a: ['q','q','q']}, true],
-          [ {a:['x','y','z']}, {a: [null,'x',3]}, false],
-          [ {a:[null,null,null]}, {a: [null,null,null]}, false],
-          [ {a:[1,2,3]}, {a:[3,4,5,6]}, false],
-          [ {a:[1,2,3]}, {a:[6,undefined,8]}, false]
+          [null, null, false],
+          [{a:1.0}, {b:2.0}, false],
+          [{a:1,b:2}, {b:2}, true],
+          [{a:1,b:3,c:1}, {b:1}, true],
+          [{a:1,b:"yellow",c:1}, {b:1}, false],
+          [{a:1,b:"yellow",c:1}, {b:"orange"}, false],
+          [{a:[1,2,3]}, {a: null}, false],
+          [{a:[1,2,3]}, {a:{foo: "bar"}}, false],
+          [{a:[1,2,3]}, {a: [3,4,5]}, true],
+          [{a:['x','y','z']}, {a: [3,4,5]}, false],
+          [{a:['x','y','z']}, {a: ['q','q','q']}, true],
+          [{a:['x','y','z']}, {a: [null,'x',3]}, false],
+          [{a:[null,null,null]}, {a: [null,null,null]}, false],
+          [{a:[1,2,3]}, {a:[3,4,5,6]}, false],
+          [{a:[1,2,3]}, {a:[6,undefined,8]}, false]
         ];
         tests.forEach(([A,B,expected])=>{
           it(` A = ${JSON.stringify(A)} B=${JSON.stringify(B)} --> ${expected} `, function(){
@@ -430,13 +435,13 @@ describe('Study ', function(){
           it('should not modify .common ', function(){
             c.common.should.deepEqual(config.common);
           });
-	    it(`c.configurations.length (${c.configurations.length}) should equal 2+expected.length (${expected.length}) `, function(){
-		c.configurations.length.should.equal(expected.length+2);
-	    });
+      it(`c.configurations.length (${c.configurations.length}) should equal 2+expected.length (${expected.length}) `, function(){
+    c.configurations.length.should.equal(expected.length+2);
+      });
           it('should not modify .configurations[0] ', function(){
             c.configurations[0].should.deepEqual(config.configurations[0]);
           });
-          for(var j=1;j<(morphConfig.numberOfConfigurations-1);++j){
+          for(let j=1;j<(morphConfig.numberOfConfigurations-1);++j){
             checkConfig(j);
           }
           it('should not modify last of .configurations ', function(){
@@ -470,7 +475,7 @@ describe('Study ', function(){
             [14,24,34,44,54,64,74,84,94,104],
             [18,28,38,48,58,68,78,88,98,108],
             [22,32,42,52,62,72,82,92,102,112],
-            [26,36,46,56,66,76,86,96,106,116],
+            [26,36,46,56,66,76,86,96,106,116]
           ].map((a)=>({ sellerCosts: a }));
           doTest(example2, {numberOfConfigurations:6, sellerCosts: 'interpolate'}, expected);
         });
@@ -500,25 +505,25 @@ describe('Study ', function(){
           ].map(toAgent);
           doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'right'}, expected);
         });
-	  describe(' example4 morph buyerAgentType:left 101 configs ', function(){
+    describe(' example4 morph buyerAgentType:left 101 configs ', function(){
         const example4M = clone(example4);
         example4M.morph = {
           numberOfConfigurations:101, 
           buyerAgentType:'left'
         };
-	      const sims = Study.makeSimulations(example4M, Object);
-	      it('sims[1].buyerAgentType should have 5 UnitAgent ', function(){
-		      sims[1].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(5);
-	      });
-	      it('sims[98].buyerAgentType should have 490 UnitAgent ', function(){
-		      sims[98].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(490);
-	      });
-	      it('sims[99].buyerAgentType should have 495 UnitAgent ', function(){
-		      sims[99].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(495);
-	      });
-	      it('sims[100].buyerAgentType should have all UnitAgent ', function(){
-		      sims[100].buyerAgentType.should.deepEqual(['UnitAgent']);
-	      });
-	  });
+        const sims = Study.makeSimulations(example4M, Object);
+        it('sims[1].buyerAgentType should have 5 UnitAgent ', function(){
+          sims[1].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(5);
+        });
+        it('sims[98].buyerAgentType should have 490 UnitAgent ', function(){
+          sims[98].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(490);
+        });
+        it('sims[99].buyerAgentType should have 495 UnitAgent ', function(){
+          sims[99].buyerAgentType.filter((t)=>(t==='UnitAgent')).length.should.equal(495);
+        });
+        it('sims[100].buyerAgentType should have all UnitAgent ', function(){
+          sims[100].buyerAgentType.should.deepEqual(['UnitAgent']);
+        });
+    });
   });
 });
