@@ -478,3 +478,13 @@ function morph(_config, morphConfig){
 }
 
 module.exports.morph = morph;
+
+function makeSimulations(cfg, Simulation, subset){
+    if (!cfg || !cfg.morph){
+        return makeClassicSimulations(cfg, Simulation, subset);
+    }
+    const morphedConfig = morph(cfg, cfg.morph);
+    return makeClassicSimulations(morphedConfig, Simulation, subset);   
+}
+
+module.exports.makeSimulations = makeSimulations;
