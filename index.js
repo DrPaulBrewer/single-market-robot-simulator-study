@@ -28,6 +28,16 @@ function myDateStamp(thedate){
 
 module.exports.myDateStamp = myDateStamp;
 
+function numberOfSimulations(config){
+    return (
+      ( config && config.morph && config.morph.numberOfConfigurations ) || 
+      ( config && Array.isArray(config.configurations) && config.configurations.length ) ||
+      0
+    );
+}
+
+module.exports.numberOfSimulations = numberOfSimulations;
+
 /**
  * creates a function that clones input object, and then overrides some properties with those in a clone of obj.com
  mon
@@ -49,7 +59,7 @@ module.exports.commonFrom = commonFrom;
  * creates a list of directory or file paths where individual simulation data may be found, given a study's config.json file
  *
  * @param {string} pathToStudyJSON path to the study "config.json" file
- * @param {number} numberOfConfigurations the number of configurations, e.g. study.configurations.length
+ * @param {number} numberOfConfigurations the number of configurations, e.g. Study.numberOfSimulations or for simple cases study.configurations.length
  * @param {filename} filename to append to resulting path in each directory
  * @return {string[]}
  */
@@ -102,8 +112,7 @@ function metaSummary(cfg){
             if (cfg.common[p])
                 meta[p] = ''+cfg.common[p];
         });
-        if (Array.isArray(cfg.configurations))
-            meta.numberOfConfigurations = cfg.configurations.length;
+        meta.numberOfSimulations = numberOfSimulations(cfg);
     }
     return meta;
 }

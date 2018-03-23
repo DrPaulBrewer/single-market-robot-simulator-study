@@ -35,6 +35,18 @@ describe('Study ', function(){
       Study.myDateStamp().should.equal(Study.myDateStamp(new Date()));
     });
   });
+  describe(' .numberOfSimulations() ', function(){
+    const tests = [
+      [{'morph': {numberOfConfigurations: 101}, configurations:[1,2]}, 101],
+      [{configurations: [1,2]}, 2],
+      [{}, 0]
+    ];
+    tests.forEach((test)=>{
+      it(` .numberOfSimulations(${JSON.stringify(test[0])}) --> ${test[1]}`, function(){
+        Study.numberOfSimulations(test[0]).should.equal(test[1]);
+      });
+    });
+  });
   describe(' let c = Study.commonFrom({ common: {a:4}, foo: "bar"}) ', function(){
     let c = Study.commonFrom({ common: {a:4}, foo: "bar"});
     it(' c({}) --> {a:4} ', function(){
@@ -92,14 +104,13 @@ describe('Study ', function(){
             new MySim({caseid:2,a:1,z:8})
           ]);
         });
-
       });
       describe(' .metaSummary ', function(){
         const name = "Example-1";
         const periods = ''+100;
-        const numberOfConfigurations = 1;
+        const numberOfSimulations = 1;
         // number of buyers, number of sellers omitted because in example1 these are defined in "configurations", not in "common", and metaSummary uses "common" only
-        const manualMeta = {name, periods, numberOfConfigurations};
+        const manualMeta = {name, periods, numberOfSimulations};
         it(' .metaSummary(example1) --> '+JSON.stringify(manualMeta), function(){
           Study.metaSummary(example1).should.deepEqual(manualMeta);
         });
