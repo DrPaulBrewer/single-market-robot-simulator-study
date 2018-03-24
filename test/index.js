@@ -73,6 +73,19 @@ describe('Study ', function(){
       });
       describe(' .makeClassicSimulations ', function(){
         function MySim(s){ Object.assign(this, s); } 
+        it(' .makeClassicSimulations does not induce side effect into study configuration', function(){
+            const config = {
+              common: {a:1},
+              configurations: [
+                {},
+                {a:7,b:2},
+                {z:33}
+              ]
+            };
+            const orig = clone(config);
+            Study.makeClassicSimulations(config, Object);
+            config.should.deepEqual(orig);
+        });
         it(' .makeClassicSimulations({ common: {a:1}, configurations: [{},{a:0,b:3},{z:8}] },MySim) --> [new MySim({caseid:0, a:1}), new MySim({caseid:1,a:1,b:3}), new MySim({caseid:2, a:1,z:8})] ',
         function(){
           const sims = Study.makeClassicSimulations({

@@ -89,8 +89,12 @@ function makeClassicSimulations(cfg, Simulation, subset){
     if (!cfg) return [];
     if (!(Array.isArray(cfg.configurations))) return [];
     let configurations = [];
-    if (Array.isArray(subset)) configurations = subset.map((v) => (cfg.configurations[v]));
-    else configurations = cfg.configurations;
+    if (Array.isArray(subset)){
+       configurations = subset.map((v) => (cfg.configurations[v]));
+    } else {
+      configurations = cfg.configurations;
+    }
+    configurations = clone(configurations); // prevent side effects
     configurations.forEach((s,j) => {
         if (!s.caseid)
             s.caseid = ( (subset && subset[j]) || j);
