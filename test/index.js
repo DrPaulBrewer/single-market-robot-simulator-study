@@ -72,7 +72,7 @@ describe('Study ', function(){
         });
       });
       describe(' .makeClassicSimulations ', function(){
-        function MySim(s){ Object.assign(this, s); } 
+        function MySim(s){ Object.assign(this, s); }
         it(' .makeClassicSimulations does not induce side effect into study configuration', function(){
             const config = {
               common: {a:1},
@@ -390,7 +390,7 @@ describe('Study ', function(){
           [{a:['x','y','z']}, {a: ['q','q','q']}, true],
           [{a:['x','y','z']}, {a: [null,'x',3]}, false],
           [{a:[null,null,null]}, {a: [null,null,null]}, false],
-          [{a:[1,2,3]}, {a:[3,4,5,6]}, false],
+          [{a:[1,2,3]}, {a:[3,4,5,6]}, true],
           [{a:[1,2,3]}, {a:[6,undefined,8]}, false]
         ];
         tests.forEach(([A,B,expected])=>{
@@ -532,7 +532,7 @@ describe('Study ', function(){
     describe(' example4 morph buyerAgentType:left 101 configs ', function(){
         const example4M = clone(example4);
         example4M.morph = {
-          numberOfConfigurations:101, 
+          numberOfConfigurations:101,
           buyerAgentType:'left'
         };
         const sims = Study.makeSimulations(example4M, Object);

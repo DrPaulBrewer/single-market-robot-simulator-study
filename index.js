@@ -13,7 +13,7 @@ function pad(z){
     return (x<10)? ("0"+x) : (''+x);
 }
 
-module.exports.pad = pad; 
+module.exports.pad = pad;
 
 function myDateStamp(thedate){
     const now = thedate || new Date();
@@ -30,7 +30,7 @@ module.exports.myDateStamp = myDateStamp;
 
 function numberOfSimulations(config){
     return (
-      ( config && config.morph && config.morph.numberOfConfigurations ) || 
+      ( config && config.morph && config.morph.numberOfConfigurations ) ||
       ( config && Array.isArray(config.configurations) && config.configurations.length ) ||
       0
     );
@@ -321,7 +321,7 @@ module.exports.assignToConfigurations = assignToConfigurations;
 
 const morpher = {
     interpolate: (x0,x1,r) => {
-        if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));  
+        if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
         if (typeof(x0)==='number') return x0*(1-r)+x1*r;
         throw new Error("Study.morpher.interpolate requires number or number array");
     },
@@ -366,21 +366,21 @@ function isMorphable(A,B){
         if (tA!==tB) return false;
         if (tA==='number') return true;
         if (Array.isArray(a)){
+            if (a.length===0) return false;
             if (!Array.isArray(b)) return false;
-            if ((a.length===0) || (a.length!==b.length)) return false;
-            // use a simple for loop here because
-            // higher-order methods like .forEach don't see holes in arrays
-            const T = typeof(a[0]);
-            if ((T==='number') || (T==='string')){
-                for(let i=0,l=a.length;i<l;++i){
-                    if ((typeof(a[i])!==T) || (typeof(b[i])!==T))
-                        return false;
-                }
-                return true;
-            }
+            if (b.length===0) return false;
+            const badentries = [a,b].some(
+              (x)=>x.some((v)=>((v===undefined) || (v===null) || ((typeof(v)==='number') && (Number.isNaN(v)))))
+            );
+            if (badentries) return false;
+            const basetype = typeof(a[0]);
+            const sameTypes = [a,b].every(
+                (x)=>x.every((v)=>(typeof(v)===basetype))
+              );
+            return sameTypes;
         }
         return false;
-    }
+      }
     const keys = intersectKeys(A,B);
     if (keys.length===0) return false;
     return keys.every((k)=>(isValueMorphable(A[k],B[k])));
@@ -444,6 +444,24 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
 
 module.exports.morphSchema = morphSchema;
 
+function explicitlyExpandToFitNumberOfAgents(common,cfg,k){
+    let nAgents = 0;
+    if (k.startsWith("buyer")){
+        nAgents = common.numberOfBuyers;
+        if (!nAgents) throw new Error("Study.morph requires .common.numberOfBuyers to be a positive integer, got: "+nAgents);
+    } else if (k.startsWith("seller")){
+        nAgents = common.numberOfSellers;
+        if (!nAgents) throw new Error("Study.morph requires .common.numberOfSellers to be a positive integer, got: "+nAgents);
+    }
+    const original = clone(cfg[k]);
+    const l = original.length;
+    cfg[k] = (
+      new Array(nAgents)
+      .fill(0)
+      .map((v,j)=>(original[j%l]))
+    );
+}
+
 function morph(_config, morphConfig){
     const config = clone(_config);
     const nConfig = morphConfig.numberOfConfigurations;
@@ -458,25 +476,8 @@ function morph(_config, morphConfig){
     );
     config.configurations[0]=clone(A);
     config.configurations[nConfig-1]=clone(B);
-    function explicitlyExpandToFitNumberOfAgents(cfg,k){
-        let nAgents = 0;
-        if (k.startsWith("buyer")){
-            nAgents = config.common.numberOfBuyers;
-            if (!nAgents) throw new Error("Study.morph requires .common.numberOfBuyers to be a positive integer, got: "+nAgents);
-        } else if (k.startsWith("seller")){
-            nAgents = config.common.numberOfSellers;
-            if (!nAgents) throw new Error("Study.morph requires .common.numberOfSellers to be a positive integer, got: "+nAgents);
-        }
-        const original = clone(cfg[k]);
-        const l = original.length;
-        cfg[k] = (
-          new Array(nAgents)
-          .fill(0)
-          .map((v,j)=>(original[j%l]))
-        );
-    }
     const preExpandList = ['buyerAgentType','sellerAgentType','buyerRate','sellerRate'];
-    [A,B].forEach((X)=>(preExpandList.forEach((k)=>{ if (X[k]) explicitlyExpandToFitNumberOfAgents(X,k); })));
+    [A,B].forEach((X)=>(preExpandList.forEach((k)=>{ if (X[k]) explicitlyExpandToFitNumberOfAgents(config.common,X,k); })));
     (Object
       .keys(morphConfig)
       .filter((k)=>(k!=='numberOfConfigurations') && (morphConfig[k]!=='ignore'))
@@ -497,7 +498,7 @@ function makeSimulations(cfg, Simulation, subset){
         return makeClassicSimulations(cfg, Simulation, subset);
     }
     const morphedConfig = morph(cfg, cfg.morph);
-    return makeClassicSimulations(morphedConfig, Simulation, subset);   
+    return makeClassicSimulations(morphedConfig, Simulation, subset);
 }
 
 module.exports.makeSimulations = makeSimulations;
