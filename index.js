@@ -392,7 +392,8 @@ module.exports.isMorphable = isMorphable;
  * Returns a JSON Schema useful for requesting a morph configuraiton from the user
  */
 
-function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
+function morphSchema(A,B, unverifiedNumberOfConfigurations = 4){
+    const suggestedNumberOfConfigurations = Math.floor(unverifiedNumberOfConfigurations);
     const schema = {
         "title": "morph",
         "type": "object",
@@ -403,23 +404,25 @@ function morphSchema(A,B, suggestedNumberOfConfigurations = 4){
         "properties": {
             "numberOfConfigurations": {
                 "description": "total number of configurations including first and last",
-                "type": "number",
-                "default": suggestedNumberOfConfigurations
+                "type": "integer",
+                "default": suggestedNumberOfConfigurations,
+                "minimum": 3,
+                "maximum": 101
             }
         }
     };
     function addPropertyToSchema({k, choices, def}){
         schema.properties[k] = {
-            "description": k,
+            "description": 'transformation for '+k,
             "type": "string",
             "enum": choices,
             "default": def
         };
         schema.default[k] = def;
     }
+    if (!(suggestedNumberOfConfigurations >= 3))
+      throw new Error("Study.morphSchema requires suggestedNumberOfConfigurations>=3 ");
     const keys = intersectKeys(A,B);
-    if (suggestedNumberOfConfigurations < 3)
-        throw new Error("Study.morphSchema requires suggestedNumberOfConfigurations>=3 ");
     if (!keys || keys.length===0)
         throw new Error("Study.morphSchema requires configurations with non-empty key intersection");
     keys.forEach((k)=>{

@@ -405,7 +405,7 @@ describe('Study ', function(){
       describe(' .morphSchema ', function(){
         it('should throw if no morphing possible', function(){
           function empty(){ Study.morphSchema(null,null); }
-          function notEnoughConfigurations(){ Study.morphSchema({a:1},{a:20},2); }
+          function notEnoughConfigurations(){ Study.morphSchema({a:1},{a:20},1); }
           empty.should.throw();
           notEnoughConfigurations.should.throw();
         });
@@ -421,7 +421,7 @@ describe('Study ', function(){
           });
           it('should have .sellerCosts configured for JSONEditor ', function(){
             schema.properties.sellerCosts.should.have.properties('description','type','default','enum');
-            schema.properties.sellerCosts.description.should.equal('sellerCosts');
+            schema.properties.sellerCosts.description.should.equal('transformation for sellerCosts');
             schema.properties.sellerCosts.type.should.equal('string');
             schema.properties.sellerCosts.default.should.equal('interpolate');
             schema.properties.sellerCosts.enum.should.deepEqual(['ignore','left','right','interpolate']);
@@ -440,7 +440,7 @@ describe('Study ', function(){
           });
           it('should have .buyerAgentType configured for JSONEditor ', function(){
             schema.properties.buyerAgentType.should.have.properties('description','type','default','enum');
-            schema.properties.buyerAgentType.description.should.equal('buyerAgentType');
+            schema.properties.buyerAgentType.description.should.equal('transformation for buyerAgentType');
             schema.properties.buyerAgentType.type.should.equal('string');
             schema.properties.buyerAgentType.default.should.equal('left');
             schema.properties.buyerAgentType.enum.should.deepEqual(['ignore','left','right']);
