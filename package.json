@@ -25,7 +25,7 @@
   "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study#readme",
   "dependencies": {
     "clone": "^2.1.1",
-    "fast-deep-equal": "^1.0.0",
+    "fast-deep-equal": "^1.1.0",
     "intersect": "^1.0.1"
   },
   "devDependencies": {
