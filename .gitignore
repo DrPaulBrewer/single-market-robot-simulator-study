@@ -4,4 +4,5 @@ coverage
 example*.csv
 example*.js
 *~
-
+.nyc_output
+*lcov
