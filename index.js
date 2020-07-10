@@ -322,8 +322,15 @@ module.exports.assignToConfigurations = assignToConfigurations;
 const morpher = {
     interpolate: (x0,x1,r) => {
         if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
-        if (typeof(x0)==='number') return x0*(1-r)+x1*r;
-        throw new Error("Study.morpher.interpolate requires number or number array");
+        const n0 = +x0;
+        const n1 = +x1;
+        if (isFinite(n0) && isFinite(n1)){
+          const calculation = n0*(1-r)+n1*r;
+          // preserve string type
+          if (typeof(x0)==='string') return (''+calculation);
+          return calculation;
+        }
+        throw new Error("Study.morpher.interpolate requires number, numeric string, or number array");
     },
     left: (x0,x1,r) => {
         if (Array.isArray(x0) && Array.isArray(x1)){
@@ -364,13 +371,14 @@ function isMorphable(A,B){
         const tA = typeof(a);
         const tB = typeof(b);
         if (tA!==tB) return false;
-        if (tA==='number') return true;
+        if (tA==='number') return (isFinite(a) && isFinite(b));
+        if (tA==='string') return (isFinite(+a) && isFinite(+b));
         if (Array.isArray(a)){
             if (a.length===0) return false;
             if (!Array.isArray(b)) return false;
             if (b.length===0) return false;
             const badentries = [a,b].some(
-              (x)=>x.some((v)=>((v===undefined) || (v===null) || ((typeof(v)==='number') && (Number.isNaN(v)))))
+              (x)=>x.some((v)=>((v===undefined) || (v===null) || ((typeof(v)==='number') && (!isFinite(v)))))
             );
             if (badentries) return false;
             const basetype = typeof(a[0]);
@@ -440,6 +448,16 @@ function morphSchema(A,B, unverifiedNumberOfConfigurations = 4){
             const choices = ["ignore","interpolate"];
             const def = "interpolate";
             addPropertyToSchema({k, choices, def});
+        } else if (typeof(A[k])==='string'){
+            if (isFinite(+A[k]) && isFinite(+B[k])){
+              const choices = ["ignore","interpolate"];
+              const def = "interpolate";
+              addPropertyToSchema({k, choices, def});
+            } else {
+              const choices = ["ignore","interpolate"];
+              const def = "ignore";
+              addPropertyToSchema({k, choices, def});
+            }
         }
     });
     return schema;
@@ -505,3 +523,67 @@ function makeSimulations(cfg, Simulation, subset){
 }
 
 module.exports.makeSimulations = makeSimulations;
+
+/**
+  * Simple studies are those that vary only one single-valued property.
+  * The axis key is the single-valued property.
+  * The axis values are the values of the single-valued property in each simulation.
+  */
+
+function asSingleNumber(v){
+  if (typeof(v)==='number'){
+    if (Number.isNaN(v)) return undefined;
+    return v;
+  }
+  if (typeof(v)==='string'){
+    return asSingleNumber(+v);
+  }
+  if (Array.isArray(v) && (v.length>=1) && v.every((x)=>(x===v[0]))) return asSingleNumber(v[0]);
+  if (
+    (typeof(v)==='object') &&
+    (v!==null) &&
+    (Object.keys(v).length===1)
+  ){
+    return asSingleNumber(Object.values(v)[0]);
+  }
+  return undefined;
+}
+
+function axis(cfg){
+  if (cfg.morph){
+    // for axis to co-exist with morph, morph = { numberOfConfigurations, property: "interpolate"}
+    if (Object.keys(cfg.morph).length!==2)
+      return null;
+    if (!Object.values(cfg.morph).includes("interpolate"))
+      return null;
+  }
+  const configs = cfg.configurations;
+  if (!Array.isArray(configs) || (configs.length===0))
+    return null;
+  if (Object.keys(configs[0]).length!==1)
+    return null;
+  const firstKey = Object.keys(configs[0])[0];
+  const isOnlyKey = configs.every((item)=>(Object.keys(item).length===1 && Object.keys(item)[0]===firstKey));
+  let result = null;
+  if (isOnlyKey){
+    if (cfg.morph){
+      const morphedConfig = morph(cfg, cfg.morph);
+      result = {
+        key: firstKey,
+        values: morphedConfig.configurations.map(asSingleNumber)
+      };
+    } else {
+    // else -- not morphing
+      result = {
+        key: firstKey,
+        values: configs.map(asSingleNumber)
+      };
+    }
+    if (result.values.some((v)=>((typeof(v)!=='number') || !isFinite(v))))
+      result = null;
+  }
+  // not the only key in configs, not a simple study
+  return result;
+}
+
+module.exports.axis = axis;

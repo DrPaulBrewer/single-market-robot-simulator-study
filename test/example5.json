@@ -1,6 +1,6 @@
 {
-    "name": "Example-2",
-    "description": "Example 2 features a pair of market with 10 Buyer and 10 Sellers and aggregate Demand given by D=16-floor(P/5), 0<P<=80.  Aggreagate supply changes from S=floor(P/10) 0<P<=100 to S=floor((P-20)/10) 20<P<=120.  The buyers and sellers use the Zero Intelligence (ZI) Robot Strategy similar to that described by Gode and Sunder(1993)",
+    "name": "Example-5",
+    "description": "Example 5 features a pair of market with 10 Buyer and 10 Sellers and aggregate Demand given by D=16-floor(P/5), 0<P<=80.  Aggreagate supply changes from S=floor(P/10) 0<P<=100 to S=floor((P-20)/10) 20<P<=120.  The buyers and sellers use the Zero Intelligence (ZI) Robot Strategy similar to that described by Gode and Sunder(1993)",
     "common": {
         "periods": 100,
         "periodDuration": 1000,
@@ -50,31 +50,31 @@
     },
     "configurations": [
         {
-            "sellerCosts": [
-                10,
-                20,
-                30,
-                40,
-                50,
-                60,
-                70,
-                80,
-                90,
-                100
-            ]
+          "sellerCosts": [
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10,
+              10
+          ]
         },
         {
             "sellerCosts": [
-                30,
-                40,
-                50,
-                60,
-                70,
-                80,
-                90,
                 100,
-                110,
-                120
+                100,
+                100,
+                100,
+                100,
+                100,
+                100,
+                100,
+                100,
+                100
             ]
         }
     ]

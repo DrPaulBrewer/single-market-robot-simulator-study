@@ -12,6 +12,7 @@ const example1 = require('./example1.json');
 const example2 = require('./example2.json');
 const example3 = require('./example3.json');
 const example4 = require('./example4.json');
+const example5 = require('./example5.json');
 
 const clone = require('clone');
 
@@ -363,7 +364,17 @@ describe('Study ', function(){
           [['interpolate', [10,20,30], [50,60,70], 0.25], [20,30,40]],
           [['interpolate', [10,20,30], [50,60,70], 0.50], [30,40,50]],
           [['interpolate', [10,20,30], [50,60,70], 0.75], [40,50,60]],
-          [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]]
+          [['interpolate', [10,20,30], [50,60,70], 1.00], [50,60,70]],
+          [['interpolate', 10, 50, 0.00], 10],
+          [['interpolate', 10, 50, 0.25], 20],
+          [['interpolate', 10, 50, 0.50], 30],
+          [['interpolate', 10, 50, 0.75], 40],
+          [['interpolate', 10, 50, 1.00], 50],
+          [['interpolate', '10', '50', 0.00], '10'],
+          [['interpolate', '10', '50', 0.25], '20'],
+          [['interpolate', '10', '50', 0.50], '30'],
+          [['interpolate', '10', '50', 0.75], '40'],
+          [['interpolate', '10', '50', 1.00], '50']
         ];
     const A100 = new Array(100).fill(0).map((v,j)=>(1+j));
     const B100 = new Array(100).fill(0).map((v,j)=>(1001+j));
@@ -381,6 +392,8 @@ describe('Study ', function(){
           [{a:1.0}, {b:2.0}, false],
           [{a:1,b:2}, {b:2}, true],
           [{a:1,b:3,c:1}, {b:1}, true],
+          [{a:1,b:'3',c:1}, {b:1}, false],
+          [{a:1,b:'3',c:1}, {b:'1'}, true],
           [{a:1,b:"yellow",c:1}, {b:1}, false],
           [{a:1,b:"yellow",c:1}, {b:"orange"}, false],
           [{a:[1,2,3]}, {a: null}, false],
@@ -459,9 +472,9 @@ describe('Study ', function(){
           it('should not modify .common ', function(){
             c.common.should.deepEqual(config.common);
           });
-      it(`c.configurations.length (${c.configurations.length}) should equal 2+expected.length (${expected.length}) `, function(){
-    c.configurations.length.should.equal(expected.length+2);
-      });
+          it(`c.configurations.length (${c.configurations.length}) should equal 2+expected.length (${expected.length}) `, function(){
+            c.configurations.length.should.equal(expected.length+2);
+          });
           it('should not modify .configurations[0] ', function(){
             c.configurations[0].should.deepEqual(config.configurations[0]);
           });
@@ -471,10 +484,13 @@ describe('Study ', function(){
           it('should not modify last of .configurations ', function(){
             c.configurations.slice(-1)[0].should.deepEqual(config.configurations[1]);
           });
+          it('.axis() should be null', function(){
+            assert(Study.axis(c)===null);
+          });
         }
         describe(' example2 morph sellerCosts:ignore ', function(){
             const expected = [{},{},{},{}];
-          doTest(example2, {numberOfConfigurations:6, sellerCosts: 'ignore'}, expected);
+            doTest(example2, {numberOfConfigurations:6, sellerCosts: 'ignore'}, expected);
         });
         describe(' example2 morph sellerCosts:left ', function(){
           const expected = [
@@ -548,6 +564,27 @@ describe('Study ', function(){
         it('sims[100].buyerAgentType should have all UnitAgent ', function(){
           sims[100].buyerAgentType.should.deepEqual(['UnitAgent']);
         });
+        it('.axis() should be null', function(){
+          assert(Study.axis(example4M)===null);
+        });
+    });
+  });
+  describe('.axis ', function(){
+    describe(' example5 ', function(){
+      it('.axis(example5)==={"key":"sellerCosts", "values": [10,100]}', function(){
+        Study.axis(example5).should.deepEqual({key: "sellerCosts", values: [10,100]});
+      });
+      it('correct axis values for morphed example5 with 9 configurations', function(){
+        const example5M = clone(example5);
+        example5M.morph = {
+          numberOfConfigurations: 10,
+          sellerCosts: 'interpolate'
+        };
+        Study.axis(example5M).key.should.deepEqual('sellerCosts');
+        Study.axis(example5M).values.forEach((v,j)=>{
+          v.should.be.approximately(10+10*j,1e-6);
+        });
+      });
     });
   });
 });
