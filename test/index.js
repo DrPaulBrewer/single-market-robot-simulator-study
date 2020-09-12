@@ -16,6 +16,32 @@ const example5 = require('./example5.json');
 
 const clone = require('clone');
 
+class MockSim {
+  // this is a Mock-up of a Simulation purely for testing purposes herein
+  constructor(options){
+    this.config = options;
+    this.period = options.periods;
+    const noOrderLogs = [
+      'ohlc',
+      'trade',
+      'effalloc'
+    ];
+    const allLogs = noOrderLogs.concat(
+      'buyorder',
+      'sellorder',
+      'rejectbuyorder',
+      'rejectsellorder'
+    );
+    const lognames = (options.withoutOrderLogs)? noOrderLogs: allLogs;
+    this.log = [];
+    lognames.forEach((logName)=>{
+      this.log[logName] = {
+        data: ['header-would-be-here']
+      };
+    });
+  }
+}
+
 describe('Study ', function(){
   describe(' .pad() ', function(){
     it(' .pad(0.0) --> "00" ', function(){
@@ -127,6 +153,31 @@ describe('Study ', function(){
         const manualMeta = {name, periods, numberOfSimulations};
         it(' .metaSummary(example1) --> '+JSON.stringify(manualMeta), function(){
           Study.metaSummary(example1).should.deepEqual(manualMeta);
+        });
+      });
+      describe(' .zipMetadata', function(){
+        const expected = {
+          forFolder: "Example-1",
+          periods: '100',
+          effalloc: '0',
+          ohlc: '0',
+          trade: '0',
+          buyorder: '0',
+          sellorder: '0',
+          rejectbuyorder: '0',
+          rejectsellorder: '0'
+        };
+        let sims = null;
+        beforeEach(function(){
+          sims = Study.makeClassicSimulations(example1, MockSim);
+        });
+        it(' .zipMetadata properties for example1 should be as expected', function(){
+          const { properties } = Study.zipMetadata(sims);
+          properties.should.deepEqual(expected);
+        });
+        it(' .zipMetadata description for example1 should be as expected', function(){
+          const { description } = Study.zipMetadata(sims);
+          JSON.parse(description).should.deepEqual(expected);
         });
       });
       describe(' .expander', function(){
