@@ -107,6 +107,10 @@ function makeClassicSimulations(cfg, Simulation, subset){
 
 module.exports.makeClassicSimulations = makeClassicSimulations;
 
+/**
+ * automated brief text description for study configuration
+ */
+
 function metaSummary(cfg){
     const meta = {};
     if (cfg && cfg.common){
@@ -123,6 +127,29 @@ function metaSummary(cfg){
 
 module.exports.metaSummary = metaSummary;
 
+/**
+ * Analyses config file and array of sims to create zipFile metadata
+ * returns { description, properties } for study zipFile metadata in a cloud storage system
+ *
+ */
+
+ function zipMetadata(cfg, sims){
+    const forFolder = cfg && cfg.name;
+    const properties = { forFolder };
+    try {
+      const logs = Object.keys(sims[0].logs).sort().join(' ');
+      properties.logs = logs;
+    } catch(e){ console.log("zipMetadata:logs", e); }
+    try {
+      const periodsForEachSim = sims.map((s)=>(s.period)).filter((n)=>(n>0));
+      const periods = ''+Math.max(0,...periodsForEachSim);  // should be string
+      properties.periods = periods;
+    } catch(e){ console.log("zipMetadata:periods", e); }
+    const description = JSON.stringify(properties,null,2);
+    return { properties, description };
+ }
+
+ module.exports.zipMetadata = zipMetadata;
 
 /**
  * collection of functions to use as "how" with expand, below

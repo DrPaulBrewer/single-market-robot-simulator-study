@@ -24,7 +24,8 @@ class MockSim {
     const noOrderLogs = [
       'ohlc',
       'trade',
-      'effalloc'
+      'effalloc',
+      'profit'
     ];
     const allLogs = noOrderLogs.concat(
       'buyorder',
@@ -33,9 +34,9 @@ class MockSim {
       'rejectsellorder'
     );
     const lognames = (options.withoutOrderLogs)? noOrderLogs: allLogs;
-    this.log = [];
+    this.logs = {};
     lognames.forEach((logName)=>{
-      this.log[logName] = {
+      this.logs[logName] = {
         data: ['header-would-be-here']
       };
     });
@@ -159,24 +160,24 @@ describe('Study ', function(){
         const expected = {
           forFolder: "Example-1",
           periods: '100',
-          effalloc: '0',
-          ohlc: '0',
-          trade: '0',
-          buyorder: '0',
-          sellorder: '0',
-          rejectbuyorder: '0',
-          rejectsellorder: '0'
+          logs: 'buyorder effalloc ohlc profit rejectbuyorder rejectsellorder sellorder trade'
         };
         let sims = null;
         beforeEach(function(){
           sims = Study.makeClassicSimulations(example1, MockSim);
         });
         it(' .zipMetadata properties for example1 should be as expected', function(){
-          const { properties } = Study.zipMetadata(sims);
+          const { properties } = Study.zipMetadata(example1,sims);
           properties.should.deepEqual(expected);
         });
+        it( '.zipMetadata properties is sensitive to max of .period', function(){
+          const sims2 = Study.makeClassicSimulations(example1, MockSim);
+          sims2.forEach((s)=>{ s.period=20; });
+          const { properties } = Study.zipMetadata(example1,sims2);
+          properties.periods.should.deepEqual('20'); // should be a string
+        });
         it(' .zipMetadata description for example1 should be as expected', function(){
-          const { description } = Study.zipMetadata(sims);
+          const { description } = Study.zipMetadata(example1,sims);
           JSON.parse(description).should.deepEqual(expected);
         });
       });
