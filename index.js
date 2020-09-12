@@ -116,7 +116,7 @@ module.exports.makeClassicSimulations = makeClassicSimulations;
  function zipMetadata({cfg, sims, periods, logs}){
     const forFolder = cfg && cfg.name;
     const properties = { forFolder };
-    if (sims){
+    if (Array.isArray(sims)){
       try {
         properties.logs = Object.keys(sims[0].logs).sort().join(' ');
       } catch(e){ console.log("zipMetadata:logs", e); }
