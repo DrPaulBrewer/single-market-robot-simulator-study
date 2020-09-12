@@ -125,7 +125,7 @@ module.exports.makeClassicSimulations = makeClassicSimulations;
         properties.periods = ''+Math.max(0,...periodsForEachSim);  // should be string
       } catch(e){ console.log("zipMetadata:periods", e); }
     }
-    if (Array.isArray(logs)) properties.logs = logs.sort();
+    if (Array.isArray(logs)) properties.logs = logs.sort().join(' ');
     if (periods>0) properties.periods = ''+periods;
     const description = JSON.stringify(properties,null,2);
     return { properties, description };
