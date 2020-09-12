@@ -54,6 +54,12 @@ describe('Study ', function(){
     it(' .pad(34)  --> "34" ', function(){
       Study.pad(34).should.equal('34');
     });
+    it(' .pad("oranges") should throw', function(){
+      function bad(){
+        Study.pad("oranges");
+      }
+      bad.should.throw();
+    });
   });
   describe(' .myDateStamp ', function(){
     it(' .myDateStamp(new Date(1517985461523)) --> "20180207T063741" ', function(){
@@ -146,16 +152,6 @@ describe('Study ', function(){
           ]);
         });
       });
-      describe(' .metaSummary ', function(){
-        const name = "Example-1";
-        const periods = ''+100;
-        const numberOfSimulations = 1;
-        // number of buyers, number of sellers omitted because in example1 these are defined in "configurations", not in "common", and metaSummary uses "common" only
-        const manualMeta = {name, periods, numberOfSimulations};
-        it(' .metaSummary(example1) --> '+JSON.stringify(manualMeta), function(){
-          Study.metaSummary(example1).should.deepEqual(manualMeta);
-        });
-      });
       describe(' .zipMetadata', function(){
         const expected = {
           forFolder: "Example-1",
@@ -167,17 +163,17 @@ describe('Study ', function(){
           sims = Study.makeClassicSimulations(example1, MockSim);
         });
         it(' .zipMetadata properties for example1 should be as expected', function(){
-          const { properties } = Study.zipMetadata(example1,sims);
+          const { properties } = Study.zipMetadata({cfg:example1,sims});
           properties.should.deepEqual(expected);
         });
         it( '.zipMetadata properties is sensitive to max of .period', function(){
           const sims2 = Study.makeClassicSimulations(example1, MockSim);
           sims2.forEach((s)=>{ s.period=20; });
-          const { properties } = Study.zipMetadata(example1,sims2);
+          const { properties } = Study.zipMetadata({cfg:example1,sims:sims2});
           properties.periods.should.deepEqual('20'); // should be a string
         });
         it(' .zipMetadata description for example1 should be as expected', function(){
-          const { description } = Study.zipMetadata(example1,sims);
+          const { description } = Study.zipMetadata({cfg:example1,sims});
           JSON.parse(description).should.deepEqual(expected);
         });
       });

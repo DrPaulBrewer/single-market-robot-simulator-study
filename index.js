@@ -108,43 +108,25 @@ function makeClassicSimulations(cfg, Simulation, subset){
 module.exports.makeClassicSimulations = makeClassicSimulations;
 
 /**
- * automated brief text description for study configuration
- */
-
-function metaSummary(cfg){
-    const meta = {};
-    if (cfg && cfg.common){
-        if (cfg.title) meta.title = cfg.title;
-        if (cfg.name) meta.name = cfg.name;
-        ['periods','numberOfBuyers','numberOfSellers'].forEach((p)=>{
-            if (cfg.common[p])
-                meta[p] = ''+cfg.common[p];
-        });
-        meta.numberOfSimulations = numberOfSimulations(cfg);
-    }
-    return meta;
-}
-
-module.exports.metaSummary = metaSummary;
-
-/**
  * Analyses config file and array of sims to create zipFile metadata
  * returns { description, properties } for study zipFile metadata in a cloud storage system
  *
  */
 
- function zipMetadata(cfg, sims){
+ function zipMetadata({cfg, sims, periods, logs}){
     const forFolder = cfg && cfg.name;
     const properties = { forFolder };
-    try {
-      const logs = Object.keys(sims[0].logs).sort().join(' ');
-      properties.logs = logs;
-    } catch(e){ console.log("zipMetadata:logs", e); }
-    try {
-      const periodsForEachSim = sims.map((s)=>(s.period)).filter((n)=>(n>0));
-      const periods = ''+Math.max(0,...periodsForEachSim);  // should be string
-      properties.periods = periods;
-    } catch(e){ console.log("zipMetadata:periods", e); }
+    if (sims){
+      try {
+        properties.logs = Object.keys(sims[0].logs).sort().join(' ');
+      } catch(e){ console.log("zipMetadata:logs", e); }
+      try {
+        const periodsForEachSim = sims.map((s)=>(s.period)).filter((n)=>(n>0));
+        properties.periods = ''+Math.max(0,...periodsForEachSim);  // should be string
+      } catch(e){ console.log("zipMetadata:periods", e); }
+    }
+    if (Array.isArray(logs)) properties.logs = logs.sort();
+    if (periods>0) properties.periods = ''+periods;
     const description = JSON.stringify(properties,null,2);
     return { properties, description };
  }
