@@ -1,20 +1,24 @@
 /* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
-/* jshint mocha:true,browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true */
-/* eslint-env node, mocha */
+/* eslint-env es2020, node, mocha */
 
-const Study = require("../index.js");
-require('should');
-const assert = require('assert');
+import * as Study from '../index.mjs';
+import 'should';
+import assert from 'assert';
+import fs from 'fs';
+import clone from 'clone';
 
-const example1 = require('./example1.json');
-const example2 = require('./example2.json');
-const example3 = require('./example3.json');
-const example4 = require('./example4.json');
-const example5 = require('./example5.json');
+function readJSON(fname){
+  return JSON.parse(fs.readFileSync("./test/"+fname,{encoding: 'utf8'})); // eslint-disable-line no-sync
+}
 
-const clone = require('clone');
+const example1 = readJSON('example1.json');
+const example2 = readJSON('example2.json');
+const example3 = readJSON('example3.json');
+const example4 = readJSON('example4.json');
+const example5 = readJSON('example5.json');
+
 
 class MockSim {
   // this is a Mock-up of a Simulation purely for testing purposes herein

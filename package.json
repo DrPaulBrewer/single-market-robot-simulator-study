@@ -1,6 +1,6 @@
 {
   "name": "single-market-robot-simulator-study",
-  "version": "5.0.2",
+  "version": "6.0.0",
   "description": "a study consists of multiple single-market-robot-simulator configurations and resulting simulations",
   "keywords": [
     "single-market-robot-simulator",
@@ -8,12 +8,13 @@
     "robot trading",
     "economic simulation"
   ],
-  "main": "index.js",
+  "exports": "./index.mjs",
   "scripts": {
-    "lint": "eslint src/index.js",
-    "lint-test": "eslint test/index.js",
-    "test": "nyc --reporter=text mocha --slow 100 --timeout 2000 ",
-    "coverage": "nyc --reporter=text-lcov mocha --timeout 2000 | coveralls "
+    "docs": "rm -rf ./docs && npx jsdoc -c .jsdoc.conf.json --access all src/index.mjs && mv out docs",
+    "lint": "eslint index.mjs",
+    "lint-test": "eslint test/index.mjs",
+    "test": "c8 --100 --reporter=text mocha --slow 50 --timeout 300000 ",
+    "go": "npm run lint && npm run lint-test && npm run test && npm run docs"
   },
   "repository": {
     "type": "git",
@@ -26,15 +27,15 @@
   },
   "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-study#readme",
   "dependencies": {
+    "c8": "^7.11.0",
     "clone": "^2.1.2",
     "fast-deep-equal": "^3.1.3",
     "intersect": "^1.0.1"
   },
   "devDependencies": {
-    "coveralls": "^3.1.0",
     "eslint": "^7.8.1",
+    "jsdoc": "^3.6.10",
     "mocha": "^8.1.3",
-    "nyc": "^15.1.0",
     "should": "^13.2.3"
   }
 }

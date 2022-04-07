@@ -2,20 +2,18 @@
 /* This file is open source software.  The MIT License applies to this software. */
 
 
-const clone = require('clone');
-const fastDeepEqual = require('fast-deep-equal');
-const intersect = require('intersect');
+import clone from 'clone';
+import fastDeepEqual from 'fast-deep-equal';
+import intersect from 'intersect';
 
-function pad(z){
+export function pad(z){
     const x = Math.floor(+z);
     if ((x===undefined) || (Number.isNaN(x)))
         throw new Error("pad: expected numeric input");
     return (x<10)? ("0"+x) : (''+x);
 }
 
-module.exports.pad = pad;
-
-function myDateStamp(thedate){
+export function myDateStamp(thedate){
     const now = thedate || new Date();
     return ( ''+ now.getUTCFullYear() +
              pad(now.getUTCMonth() + 1) +
@@ -26,17 +24,13 @@ function myDateStamp(thedate){
            );
 }
 
-module.exports.myDateStamp = myDateStamp;
-
-function numberOfSimulations(config){
+export function numberOfSimulations(config){
     return (
       ( config && config.morph && config.morph.numberOfConfigurations ) ||
       ( config && Array.isArray(config.configurations) && config.configurations.length ) ||
       0
     );
 }
-
-module.exports.numberOfSimulations = numberOfSimulations;
 
 /**
  * creates a function that clones input object, and then overrides some properties with those in a clone of obj.com
@@ -45,14 +39,13 @@ module.exports.numberOfSimulations = numberOfSimulations;
  * @return {function(c: Object):Object} clone of c with properties overridden by obj.common
  */
 
-function commonFrom(obj){
+export function commonFrom(obj){
     return function(c){
         const result =  Object.assign({},clone(c),clone(obj.common));
         return result;
     };
 }
 
-module.exports.commonFrom = commonFrom;
 
 /**
  *
@@ -64,7 +57,7 @@ module.exports.commonFrom = commonFrom;
  * @return {string[]}
  */
 
-function paths(pathToStudyJSON, numberOfConfigurations,filename){
+export function paths(pathToStudyJSON, numberOfConfigurations,filename){
     const list = [];
     const filenameRegex = /[^/]*$/;
     const f = filename || '';
@@ -72,8 +65,6 @@ function paths(pathToStudyJSON, numberOfConfigurations,filename){
         list.push(pathToStudyJSON.replace(filenameRegex, pad(j)+"/"+f));
     return list;
 }
-
-module.exports.paths = paths;
 
 /**
  * Create new simulations from ~ Jan-2017 original study cfg format
@@ -85,7 +76,7 @@ module.exports.paths = paths;
  * @return {Array<Object>} array of new SMRS.Simulation - each simulation will be initialized but not running
  */
 
-function makeClassicSimulations(cfg, Simulation, subset){
+export function makeClassicSimulations(cfg, Simulation, subset){
     if (!cfg) return [];
     if (!(Array.isArray(cfg.configurations))) return [];
     let configurations = [];
@@ -105,15 +96,13 @@ function makeClassicSimulations(cfg, Simulation, subset){
            );
 }
 
-module.exports.makeClassicSimulations = makeClassicSimulations;
-
 /**
  * Analyses config file and array of sims to create zipFile metadata
  * returns { description, properties } for study zipFile metadata in a cloud storage system
  *
  */
 
- function zipMetadata({cfg, sims, periods, logs}){
+export function zipMetadata({cfg, sims, periods, logs}){
     const forFolder = cfg && cfg.name;
     const properties = { forFolder };
     if (Array.isArray(sims)){
@@ -131,13 +120,11 @@ module.exports.makeClassicSimulations = makeClassicSimulations;
     return { properties, description };
  }
 
- module.exports.zipMetadata = zipMetadata;
-
 /**
  * collection of functions to use as "how" with expand, below
  */
 
-const expander = {
+export const expander = {
     interpolate: (a,n)=>{
         if (!a.length) return [];
         const result = [];
@@ -164,15 +151,13 @@ const expander = {
     }
 };
 
-module.exports.expander = expander;
-
 /**
  * clones study _config and modifies it for expansion.
  * If the number of buyers or sellers is 1, that number is unchanged.  Otherwise, multiplies the number of buyers and sellers by xfactor.
  * .buyerValues and .sellerCosts arrays in the current study are updated using supplied function how.  " x"+factor is appended to study name.
  */
 
-function expand(_config, xfactor, how){
+export function expand(_config, xfactor, how){
     function adjust(what){
         // what will be either config.common or config.configurations[n] for some n
         function dup1to1AgentArrayProps(props){
@@ -209,8 +194,6 @@ function expand(_config, xfactor, how){
     return config;
 }
 
-module.exports.expand = expand;
-
 
 /**
  * returns properties of config.configurations that are identical
@@ -221,7 +204,7 @@ module.exports.expand = expand;
 
 // what if cprop is array? may not quite be what we want
 
-function unvaryingInConfigurations(config, cprop){
+export function unvaryingInConfigurations(config, cprop){
     if (config.configurations.length <= 1)
         return (cprop)? false: [];
     const A = config.configurations[0];
@@ -237,8 +220,6 @@ function unvaryingInConfigurations(config, cprop){
     return (cprop)? (unvaryingList.length===1): unvaryingList;
 }
 
-module.exports.unvaryingInConfigurations = unvaryingInConfigurations;
-
 /**
  * Moves configuration information from .configurations to .common
  *
@@ -252,7 +233,7 @@ module.exports.unvaryingInConfigurations = unvaryingInConfigurations;
  * and deleted from any of the .configurations
  */
 
-function assignToCommon(_config, change){
+export function assignToCommon(_config, change){
     const config = clone(_config);
     if (Array.isArray(change)){
         change.forEach((prop)=>{
@@ -276,21 +257,17 @@ function assignToCommon(_config, change){
     return config;
 }
 
-module.exports.assignToCommon = assignToCommon;
-
 /**
  * first, delete any configuration properties that are also in common, as these are overriden anyway
  * next, if there are two or more configurations, move all unvarying properties to common
  *
  */
 
-function simplify(_config){
+export function simplify(_config){
     const config = assignToCommon(_config, Object.keys(_config.common));
     const propsToSimplify = unvaryingInConfigurations(config);
     return assignToCommon(config, propsToSimplify);
 }
-
-module.exports.simplify = simplify;
 
 /**
  * If change is an Array, it is interpreted as a list of properties.
@@ -302,7 +279,7 @@ module.exports.simplify = simplify;
  *
  */
 
-function assignToConfigurations(_config, change){
+export function assignToConfigurations(_config, change){
     const config = clone(_config);
     if (Array.isArray(change)){
         change.forEach((prop)=>{
@@ -326,9 +303,7 @@ function assignToConfigurations(_config, change){
 }
 
 
-module.exports.assignToConfigurations = assignToConfigurations;
-
-const morpher = {
+export const morpher = {
     interpolate: (x0,x1,r) => {
         if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
         const n0 = +x0;
@@ -357,9 +332,8 @@ const morpher = {
     }
 };
 
-module.exports.morpher = morpher;
 
-function intersectKeys(objectA, objectB){
+export function intersectKeys(objectA, objectB){
     if ((typeof(objectA)!=='object') || (typeof(objectB)!=='object') || (objectA===null) || (objectB===null))
         return [];
     return intersect(Object.keys(objectA), Object.keys(objectB));
@@ -375,7 +349,7 @@ function intersectKeys(objectA, objectB){
  *  returns Boolean
  */
 
-function isMorphable(A,B){
+export function isMorphable(A,B){
     function isValueMorphable(a,b){
         const tA = typeof(a);
         const tB = typeof(b);
@@ -403,13 +377,11 @@ function isMorphable(A,B){
     return keys.every((k)=>(isValueMorphable(A[k],B[k])));
 }
 
-module.exports.isMorphable = isMorphable;
-
 /**
  * Returns a JSON Schema useful for requesting a morph configuraiton from the user
  */
 
-function morphSchema(A,B, unverifiedNumberOfConfigurations = 4){
+export function morphSchema(A,B, unverifiedNumberOfConfigurations = 4){
     const suggestedNumberOfConfigurations = Math.floor(unverifiedNumberOfConfigurations);
     const schema = {
         "title": "morph",
@@ -472,7 +444,6 @@ function morphSchema(A,B, unverifiedNumberOfConfigurations = 4){
     return schema;
 }
 
-module.exports.morphSchema = morphSchema;
 
 function explicitlyExpandToFitNumberOfAgents(common,cfg,k){
     let nAgents = 0;
@@ -492,7 +463,7 @@ function explicitlyExpandToFitNumberOfAgents(common,cfg,k){
     );
 }
 
-function morph(_config, morphConfig){
+export function morph(_config, morphConfig){
     const config = clone(_config);
     const nConfig = morphConfig.numberOfConfigurations;
     if ((typeof(nConfig)!=='number') || (!(nConfig>2)))
@@ -521,17 +492,13 @@ function morph(_config, morphConfig){
     return config;
 }
 
-module.exports.morph = morph;
-
-function makeSimulations(cfg, Simulation, subset){
+export function makeSimulations(cfg, Simulation, subset){
     if (!cfg || !cfg.morph){
         return makeClassicSimulations(cfg, Simulation, subset);
     }
     const morphedConfig = morph(cfg, cfg.morph);
     return makeClassicSimulations(morphedConfig, Simulation, subset);
 }
-
-module.exports.makeSimulations = makeSimulations;
 
 /**
   * Simple studies are those that vary only one single-valued property.
@@ -558,7 +525,7 @@ function asSingleNumber(v){
   return undefined;
 }
 
-function axis(cfg){
+export function axis(cfg){
   if (cfg.morph){
     // for axis to co-exist with morph, morph = { numberOfConfigurations, property: "interpolate"}
     if (Object.keys(cfg.morph).length!==2)
@@ -594,5 +561,3 @@ function axis(cfg){
   // not the only key in configs, not a simple study
   return result;
 }
-
-module.exports.axis = axis;
