@@ -386,7 +386,7 @@ describe('Study ', function(){
         describe('detect invalid change', function(){
           it('undefined change should throw error', function(){
             function bad(){
-              const out = Study.assignToConfigurations(example1, undefined);
+              Study.assignToConfigurations(example1, undefined);
             }
             bad.should.throw(/invalid change/);
           });
