@@ -383,6 +383,14 @@ describe('Study ', function(){
         });
       });
       describe(' .assignToConfigurations ', function(){
+        describe('detect invalid change', function(){
+          it('undefined change should throw error', function(){
+            function bad(){
+              const out = Study.assignToConfigurations(example1, undefined);
+            }
+            bad.should.throw(/invalid change/);
+          });
+        });
         describe('.assignToConfigurations(example1x2,["periodDuration"] ', function(){
           const example1x2 = clone(example1);
           example1x2.configurations[1] = clone(example1x2.configurations[0]);
@@ -394,6 +402,22 @@ describe('Study ', function(){
           it('output has .periodDuration in .configurations[*]', function(){
             example1AMod.configurations[0].periodDuration.should.equal(1000);
             example1AMod.configurations[1].periodDuration.should.equal(1000);
+          });
+          it('output does not have .periodDuration in .common', function(){
+            example1AMod.common.should.not.have.property('periodDuration');
+          });
+        });
+        describe('.assignToConfigurations(example1x2,{"periodDuration":100}) ', function(){
+          const example1x2 = clone(example1);
+          example1x2.configurations[1] = clone(example1x2.configurations[0]);
+          const example1A = clone(example1x2);
+          const example1AMod = Study.assignToConfigurations(example1A, {periodDuration:100});
+          it('original study input object is unmodified', function(){
+            example1A.should.deepEqual(example1x2);
+          });
+          it('output has .periodDuration == 100 in .configurations[*]', function(){
+            example1AMod.configurations[0].periodDuration.should.equal(100);
+            example1AMod.configurations[1].periodDuration.should.equal(100);
           });
           it('output does not have .periodDuration in .common', function(){
             example1AMod.common.should.not.have.property('periodDuration');
@@ -437,6 +461,20 @@ describe('Study ', function(){
             Study.morpher[f](first,last,ratio).should.deepEqual(expected);
           });
         });
+    const badInput = [
+      ['left', 45, 70, 0.5],
+      ['right', 45, 70, 0.5],
+      ['interpolate',[1,'a','b'],['30','c','d'], 0.5],
+      ['interpolate',35,'x',0.5]
+    ];
+    badInput.forEach(([f,first,last,ratio])=>{
+      it(`Study.morpher.${f} ${first} ${last} ${ratio} should throw Error`, function(){
+        function bad(){
+          Study.morpher[f](first,last,ratio);
+        }
+        bad.should.throw();
+      });
+    });
       });
       describe(' .isMorphable ', function(){
         const tests = [

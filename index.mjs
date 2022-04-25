@@ -298,6 +298,7 @@ export function assignToConfigurations(_config, change){
             Object.assign(caseConfig, clone(change));
         });
         Object.keys(change).forEach((prop)=>{ delete config.common[prop]; });
+        return config;
     }
     throw new Error("Study.assignToConfigurations: invalid change, got: "+change);
 }
@@ -305,7 +306,11 @@ export function assignToConfigurations(_config, change){
 
 export const morpher = {
     interpolate: (x0,x1,r) => {
-        if (Array.isArray(x0) && Array.isArray(x1)) return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
+        if (Array.isArray(x0) &&
+            Array.isArray(x1) &&
+            x0.every((x)=>(isFinite(x))) &&
+            x1.every((x)=>(isFinite(x))))
+             return x0.map((v,j)=>(v*(1-r)+x1[j]*r));
         const n0 = +x0;
         const n1 = +x1;
         if (isFinite(n0) && isFinite(n1)){
