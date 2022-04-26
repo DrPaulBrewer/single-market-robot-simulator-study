@@ -6,3 +6,4 @@ example*.js
 *~
 .nyc_output
 *lcov
+docs
