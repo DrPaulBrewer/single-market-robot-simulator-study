@@ -521,6 +521,60 @@ describe('Study ', function(){
           empty.should.throw();
           notEnoughConfigurations.should.throw();
         });
+        it('proper schema for morphing a number property', function(){
+          const schema = Study.morphSchema({a:1},{a:9},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'interpolate'
+              }
+            },
+            default: {
+              a: 'interpolate'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
+        });
+        it('proper schema for morphing a numeric string property', function(){
+          const schema = Study.morphSchema({a:'1'},{a:'9'},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'interpolate'
+              }
+            },
+            default: {
+              a: 'interpolate'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
+        });
+        it('proper schema for morphing a string property', function(){
+          const schema = Study.morphSchema({a:'alligator'},{a:'banana'},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'ignore'
+              }
+            },
+            default: {
+              a: 'ignore'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
+        });
         describe(' ./test/example2.json .morphSchema suggest 10 configurations ', function(){
           const schema = Study.morphSchema(example2.configurations[0],example2.configurations[1],10);
           it('schema.properties should have .numberOfConfigurations and .sellerCosts', function(){
