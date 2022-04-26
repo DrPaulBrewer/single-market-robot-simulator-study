@@ -294,6 +294,14 @@ describe('Study ', function(){
         });
       });
       describe(' .assignToCommon ', function(){
+        describe('.assignToCommon(example1,undefined)', function(){
+          it('should throw an error: invalid change', function(){
+            function bad(){
+              Study.assignToCommon(example1);
+            }
+            bad.should.throw(/invalid change/);
+          });
+        });
         describe('.assignToCommon(example1,["buyerValues"]) ', function(){
           const example1A = clone(example1);
           const bv = example1A.configurations[0].buyerValues;

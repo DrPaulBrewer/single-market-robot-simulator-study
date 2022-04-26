@@ -59,10 +59,13 @@ export function commonFrom(obj){
 
 export function paths(pathToStudyJSON, numberOfConfigurations,filename){
     const list = [];
-    const filenameRegex = /[^/]*$/;
+    const pathArray = pathToStudyJSON.split('/');
+    const depth = pathArray.length;
     const f = filename || '';
-    for(let j=0,l=numberOfConfigurations;j<l;++j)
-        list.push(pathToStudyJSON.replace(filenameRegex, pad(j)+"/"+f));
+    for(let j=0,l=numberOfConfigurations;j<l;++j){
+      pathArray[depth-1] = pad(j)+'/'+f;
+      list.push(pathArray.join('/'));
+    }
     return list;
 }
 
@@ -254,7 +257,7 @@ export function assignToCommon(_config, change){
         })));
         return config;
     }
-    return config;
+    throw new Error("Study.assignToCommon: invalid change, got: "+change);
 }
 
 /**
