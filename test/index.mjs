@@ -764,4 +764,23 @@ describe('Study ', function(){
       });
     });
   });
+  describe('.makeSimulations', function(){
+    describe(' example2 ', function(){
+      const sims = Study.makeSimulations(example2, Object);
+      const expected_sims_length = example2.configurations.length;
+      it(`should create ${expected_sims_length} simulations`, function(){
+        sims.length.should.equal(expected_sims_length);
+      });
+      it('common properties should match in each sim', function(){
+        const common = example2.common;
+        Object
+        .keys(common)
+        .forEach((k)=>{
+          sims.forEach((s)=>{
+            s[k].should.deepEqual(common[k]);
+          });
+        });
+      });
+    })
+  });
 });
