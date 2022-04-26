@@ -18,6 +18,7 @@ const example2 = readJSON('example2.json');
 const example3 = readJSON('example3.json');
 const example4 = readJSON('example4.json');
 const example5 = readJSON('example5.json');
+const example6 = readJSON('example6.json');
 
 
 class MockSim {
@@ -672,13 +673,18 @@ describe('Study ', function(){
           ].map((a)=>({ sellerCosts: a }));
           doTest(example2, {numberOfConfigurations:6, sellerCosts: 'interpolate'}, expected);
         });
-        function toAgent(s){
-          const agentMap = {
-            'U': 'UnitAgent',
-            'Z': 'ZIAgent'
+        function toAgentTypes(buyerOrSeller){
+          const k = `${buyerOrSeller}AgentType`;
+          return function(s){
+            const agentMap = {
+              'U': 'UnitAgent',
+              'Z': 'ZIAgent'
+            };
+            const agents = s.split('').map((c)=>(agentMap[c]));
+            const response = {};
+            response[k] = agents;
+            return response;
           };
-          const agents = s.split('').map((c)=>(agentMap[c]));
-          return { buyerAgentType: agents };
         }
         describe(' example3 morph buyerAgentType:left ', function(){
           const expected = [
@@ -686,7 +692,7 @@ describe('Study ', function(){
             'UUUUZZZZZZ',
             'UUUUUUZZZZ',
             'UUUUUUUUZZ'
-          ].map(toAgent);
+          ].map(toAgentTypes('buyer'));
           doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'left'}, expected);
         });
         describe(' example3 morph buyerAgentType:right ', function(){
@@ -695,8 +701,26 @@ describe('Study ', function(){
             'ZZZZZZUUUU',
             'ZZZZUUUUUU',
             'ZZUUUUUUUU'
-          ].map(toAgent);
+          ].map(toAgentTypes('buyer'));
           doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'right'}, expected);
+        });
+        describe(' example6 morph sellerAgentType:left ', function(){
+          const expected = [
+            'UUZZZZZZZZ',
+            'UUUUZZZZZZ',
+            'UUUUUUZZZZ',
+            'UUUUUUUUZZ'
+          ].map(toAgentTypes('seller'));
+          doTest(example6, {numberOfConfigurations:6, sellerAgentType: 'left'}, expected);
+        });
+        describe(' example6 morph sellerAgentType:right ', function(){
+          const expected = [
+            'ZZZZZZZZUU',
+            'ZZZZZZUUUU',
+            'ZZZZUUUUUU',
+            'ZZUUUUUUUU'
+          ].map(toAgentTypes('seller'));
+          doTest(example6, {numberOfConfigurations:6, sellerAgentType: 'right'}, expected);
         });
     describe(' example4 morph buyerAgentType:left 101 configs ', function(){
         const example4M = clone(example4);

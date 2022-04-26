@@ -457,10 +457,10 @@ function explicitlyExpandToFitNumberOfAgents(common,cfg,k){
     let nAgents = 0;
     if (k.startsWith("buyer")){
         nAgents = common.numberOfBuyers;
-        if (!nAgents) throw new Error("Study.morph requires .common.numberOfBuyers to be a positive integer, got: "+nAgents);
+        if (!nAgents || nAgents<=0) throw new Error("Study.morph requires .common.numberOfBuyers to be a positive integer, got: "+nAgents);
     } else if (k.startsWith("seller")){
         nAgents = common.numberOfSellers;
-        if (!nAgents) throw new Error("Study.morph requires .common.numberOfSellers to be a positive integer, got: "+nAgents);
+        if (!nAgents || nAgents<=0) throw new Error("Study.morph requires .common.numberOfSellers to be a positive integer, got: "+nAgents);
     }
     const original = clone(cfg[k]);
     const l = original.length;

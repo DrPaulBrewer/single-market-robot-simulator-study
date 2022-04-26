@@ -1,0 +1,72 @@
+{
+    "name": "Example-6",
+    "description": "Example 6 is like Example 3 except that sellerAgentType is varied among the configurations ",
+    "common": {
+        "periods": 100,
+        "periodDuration": 1000,
+        "L": 1,
+        "H": 150,
+        "buyerValues": [
+            80,
+            75,
+            70,
+            65,
+            60,
+            55,
+            50,
+            45,
+            40,
+            35,
+            30,
+            25,
+            20,
+            15,
+            10,
+            5
+        ],
+	"sellerCosts": [
+            10,
+            20,
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+        ],
+        "numberOfBuyers": 10,
+        "numberOfSellers": 10,
+        "buyerRate": [
+            0.2
+        ],
+        "sellerRate": [
+            0.2
+        ],
+        "buyerAgentType": [
+            "ZIAgent"
+        ],
+        "keepPreviousOrders": false,
+        "ignoreBudgetConstraint": false,
+        "xMarket": {
+            "buySellBookLimit": 0,
+            "resetAfterEachTrade": false
+        },
+        "integer": true,
+        "silent": true,
+        "version": 2
+    },
+    "configurations": [
+        {
+	    "sellerAgentType": [
+		"ZIAgent"
+            ]
+        },
+        {
+	    "sellerAgentType": [
+		"UnitAgent"
+            ]
+        }
+    ]
+}
