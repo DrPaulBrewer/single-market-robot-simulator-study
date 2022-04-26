@@ -767,9 +767,9 @@ describe('Study ', function(){
   describe('.makeSimulations', function(){
     describe(' example2 ', function(){
       const sims = Study.makeSimulations(example2, Object);
-      const expected_sims_length = example2.configurations.length;
-      it(`should create ${expected_sims_length} simulations`, function(){
-        sims.length.should.equal(expected_sims_length);
+      const expectedSimsLength = example2.configurations.length;
+      it(`should create ${expectedSimsLength} simulations`, function(){
+        sims.length.should.equal(expectedSimsLength);
       });
       it('common properties should match in each sim', function(){
         const common = example2.common;
@@ -781,6 +781,6 @@ describe('Study ', function(){
           });
         });
       });
-    })
+    });
   });
 });

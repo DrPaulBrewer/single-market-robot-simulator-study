@@ -10,7 +10,7 @@
   ],
   "exports": "./index.mjs",
   "scripts": {
-    "docs": "rm -rf ./docs && npx jsdoc -c .jsdoc.conf.json --access all src/index.mjs && mv out docs",
+    "docs": "rm -rf ./docs && npx jsdoc -c .jsdoc.conf.json --access all index.mjs && mv out docs",
     "lint": "eslint index.mjs",
     "lint-test": "eslint test/index.mjs",
     "test": "c8 --reporter=text mocha --slow 50 --timeout 300000 ",
