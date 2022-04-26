@@ -1,20 +1,25 @@
 /* Copyright 2017- Paul Brewer, Economic and Financial Technology Consulting LLC */
 /* This file is open source software.  The MIT License applies to this software. */
 
-/* jshint mocha:true,browserify:true,esnext:true,eqeqeq:true,undef:true,lastsemic:true,strict:true */
-/* eslint-env node, mocha */
+/* eslint-env es2020, node, mocha */
 
-const Study = require("../index.js");
-require('should');
-const assert = require('assert');
+import * as Study from '../index.mjs';
+import 'should';
+import assert from 'assert';
+import fs from 'fs';
+import clone from 'clone';
 
-const example1 = require('./example1.json');
-const example2 = require('./example2.json');
-const example3 = require('./example3.json');
-const example4 = require('./example4.json');
-const example5 = require('./example5.json');
+function readJSON(fname){
+  return JSON.parse(fs.readFileSync("./test/"+fname,{encoding: 'utf8'})); // eslint-disable-line no-sync
+}
 
-const clone = require('clone');
+const example1 = readJSON('example1.json');
+const example2 = readJSON('example2.json');
+const example3 = readJSON('example3.json');
+const example4 = readJSON('example4.json');
+const example5 = readJSON('example5.json');
+const example6 = readJSON('example6.json');
+
 
 class MockSim {
   // this is a Mock-up of a Simulation purely for testing purposes herein
@@ -290,6 +295,14 @@ describe('Study ', function(){
         });
       });
       describe(' .assignToCommon ', function(){
+        describe('.assignToCommon(example1,undefined)', function(){
+          it('should throw an error: invalid change', function(){
+            function bad(){
+              Study.assignToCommon(example1);
+            }
+            bad.should.throw(/invalid change/);
+          });
+        });
         describe('.assignToCommon(example1,["buyerValues"]) ', function(){
           const example1A = clone(example1);
           const bv = example1A.configurations[0].buyerValues;
@@ -379,6 +392,14 @@ describe('Study ', function(){
         });
       });
       describe(' .assignToConfigurations ', function(){
+        describe('detect invalid change', function(){
+          it('undefined change should throw error', function(){
+            function bad(){
+              Study.assignToConfigurations(example1, undefined);
+            }
+            bad.should.throw(/invalid change/);
+          });
+        });
         describe('.assignToConfigurations(example1x2,["periodDuration"] ', function(){
           const example1x2 = clone(example1);
           example1x2.configurations[1] = clone(example1x2.configurations[0]);
@@ -390,6 +411,22 @@ describe('Study ', function(){
           it('output has .periodDuration in .configurations[*]', function(){
             example1AMod.configurations[0].periodDuration.should.equal(1000);
             example1AMod.configurations[1].periodDuration.should.equal(1000);
+          });
+          it('output does not have .periodDuration in .common', function(){
+            example1AMod.common.should.not.have.property('periodDuration');
+          });
+        });
+        describe('.assignToConfigurations(example1x2,{"periodDuration":100}) ', function(){
+          const example1x2 = clone(example1);
+          example1x2.configurations[1] = clone(example1x2.configurations[0]);
+          const example1A = clone(example1x2);
+          const example1AMod = Study.assignToConfigurations(example1A, {periodDuration:100});
+          it('original study input object is unmodified', function(){
+            example1A.should.deepEqual(example1x2);
+          });
+          it('output has .periodDuration == 100 in .configurations[*]', function(){
+            example1AMod.configurations[0].periodDuration.should.equal(100);
+            example1AMod.configurations[1].periodDuration.should.equal(100);
           });
           it('output does not have .periodDuration in .common', function(){
             example1AMod.common.should.not.have.property('periodDuration');
@@ -433,6 +470,20 @@ describe('Study ', function(){
             Study.morpher[f](first,last,ratio).should.deepEqual(expected);
           });
         });
+    const badInput = [
+      ['left', 45, 70, 0.5],
+      ['right', 45, 70, 0.5],
+      ['interpolate',[1,'a','b'],['30','c','d'], 0.5],
+      ['interpolate',35,'x',0.5]
+    ];
+    badInput.forEach(([f,first,last,ratio])=>{
+      it(`Study.morpher.${f} ${first} ${last} ${ratio} should throw Error`, function(){
+        function bad(){
+          Study.morpher[f](first,last,ratio);
+        }
+        bad.should.throw();
+      });
+    });
       });
       describe(' .isMorphable ', function(){
         const tests = [
@@ -452,7 +503,8 @@ describe('Study ', function(){
           [{a:['x','y','z']}, {a: [null,'x',3]}, false],
           [{a:[null,null,null]}, {a: [null,null,null]}, false],
           [{a:[1,2,3]}, {a:[3,4,5,6]}, true],
-          [{a:[1,2,3]}, {a:[6,undefined,8]}, false]
+          [{a:[1,2,3]}, {a:[6,undefined,8]}, false],
+          [{a:{x:1}}, {a:{x:2}}, false]
         ];
         tests.forEach(([A,B,expected])=>{
           it(` A = ${JSON.stringify(A)} B=${JSON.stringify(B)} --> ${expected} `, function(){
@@ -469,6 +521,60 @@ describe('Study ', function(){
           function notEnoughConfigurations(){ Study.morphSchema({a:1},{a:20},1); }
           empty.should.throw();
           notEnoughConfigurations.should.throw();
+        });
+        it('proper schema for morphing a number property', function(){
+          const schema = Study.morphSchema({a:1},{a:9},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'interpolate'
+              }
+            },
+            default: {
+              a: 'interpolate'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
+        });
+        it('proper schema for morphing a numeric string property', function(){
+          const schema = Study.morphSchema({a:'1'},{a:'9'},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'interpolate'
+              }
+            },
+            default: {
+              a: 'interpolate'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
+        });
+        it('proper schema for morphing a string property', function(){
+          const schema = Study.morphSchema({a:'alligator'},{a:'banana'},4);
+          const expected = {
+            properties: {
+              a: {
+                description: 'transformation for a',
+                type: "string",
+                enum: ['ignore','interpolate'],
+                default: 'ignore'
+              }
+            },
+            default: {
+              a: 'ignore'
+            }
+          };
+          schema.properties.a.should.deepEqual(expected.properties.a);
+          schema.default.a.should.deepEqual(expected.default.a);
         });
         describe(' ./test/example2.json .morphSchema suggest 10 configurations ', function(){
           const schema = Study.morphSchema(example2.configurations[0],example2.configurations[1],10);
@@ -567,13 +673,18 @@ describe('Study ', function(){
           ].map((a)=>({ sellerCosts: a }));
           doTest(example2, {numberOfConfigurations:6, sellerCosts: 'interpolate'}, expected);
         });
-        function toAgent(s){
-          const agentMap = {
-            'U': 'UnitAgent',
-            'Z': 'ZIAgent'
+        function toAgentTypes(buyerOrSeller){
+          const k = `${buyerOrSeller}AgentType`;
+          return function(s){
+            const agentMap = {
+              'U': 'UnitAgent',
+              'Z': 'ZIAgent'
+            };
+            const agents = s.split('').map((c)=>(agentMap[c]));
+            const response = {};
+            response[k] = agents;
+            return response;
           };
-          const agents = s.split('').map((c)=>(agentMap[c]));
-          return { buyerAgentType: agents };
         }
         describe(' example3 morph buyerAgentType:left ', function(){
           const expected = [
@@ -581,7 +692,7 @@ describe('Study ', function(){
             'UUUUZZZZZZ',
             'UUUUUUZZZZ',
             'UUUUUUUUZZ'
-          ].map(toAgent);
+          ].map(toAgentTypes('buyer'));
           doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'left'}, expected);
         });
         describe(' example3 morph buyerAgentType:right ', function(){
@@ -590,8 +701,26 @@ describe('Study ', function(){
             'ZZZZZZUUUU',
             'ZZZZUUUUUU',
             'ZZUUUUUUUU'
-          ].map(toAgent);
+          ].map(toAgentTypes('buyer'));
           doTest(example3, {numberOfConfigurations:6, buyerAgentType: 'right'}, expected);
+        });
+        describe(' example6 morph sellerAgentType:left ', function(){
+          const expected = [
+            'UUZZZZZZZZ',
+            'UUUUZZZZZZ',
+            'UUUUUUZZZZ',
+            'UUUUUUUUZZ'
+          ].map(toAgentTypes('seller'));
+          doTest(example6, {numberOfConfigurations:6, sellerAgentType: 'left'}, expected);
+        });
+        describe(' example6 morph sellerAgentType:right ', function(){
+          const expected = [
+            'ZZZZZZZZUU',
+            'ZZZZZZUUUU',
+            'ZZZZUUUUUU',
+            'ZZUUUUUUUU'
+          ].map(toAgentTypes('seller'));
+          doTest(example6, {numberOfConfigurations:6, sellerAgentType: 'right'}, expected);
         });
     describe(' example4 morph buyerAgentType:left 101 configs ', function(){
         const example4M = clone(example4);
@@ -631,6 +760,25 @@ describe('Study ', function(){
         Study.axis(example5M).key.should.deepEqual('sellerCosts');
         Study.axis(example5M).values.forEach((v,j)=>{
           v.should.be.approximately(10+10*j,1e-6);
+        });
+      });
+    });
+  });
+  describe('.makeSimulations', function(){
+    describe(' example2 ', function(){
+      const sims = Study.makeSimulations(example2, Object);
+      const expectedSimsLength = example2.configurations.length;
+      it(`should create ${expectedSimsLength} simulations`, function(){
+        sims.length.should.equal(expectedSimsLength);
+      });
+      it('common properties should match in each sim', function(){
+        const common = example2.common;
+        Object
+        .keys(common)
+        .forEach((k)=>{
+          sims.forEach((s)=>{
+            s[k].should.deepEqual(common[k]);
+          });
         });
       });
     });
